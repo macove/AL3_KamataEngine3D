@@ -3,10 +3,15 @@
 #include <cassert>
 
 
-GameScene::GameScene() {}
 
-GameScene::~GameScene() {
-	
+GameScene::GameScene() {
+
+
+}
+
+GameScene::~GameScene() { 
+	//delete sprite_;
+	delete player_;
 	
 }
 
@@ -16,11 +21,26 @@ void GameScene::Initialize() {
 	input_ = Input::GetInstance();
 	audio_ = Audio::GetInstance();
 
-	
+	player_ = new Player();
+
+	playerModel_ = new Model();
+
+	playerViewProjection_ = new ViewProjection();
+
+    uint32_t playerTextureHandle = TextureManager::Load("./Resources/kuma1.png");
+
+	playerModel_ = Model::Create();
+
+	playerViewProjection_->Initialize();
+
+	player_->Initialize(playerModel_, playerTextureHandle, playerViewProjection_);
+
+
 }
 
 void GameScene::Update() {
 
+	player_->Update();
 	
 }
 
@@ -37,7 +57,7 @@ void GameScene::Draw() {
 	/// ここに背景スプライトの描画処理を追加できる
 	/// </summary>
 
-	
+	//sprite_->Draw();
 
 	// スプライト描画後処理
 	Sprite::PostDraw();
@@ -52,8 +72,8 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
+	player_->Draw();
 
-	
 	
 
 	// 3Dオブジェクト描画後処理
