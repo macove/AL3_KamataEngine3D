@@ -1,7 +1,9 @@
 #include "GameScene.h"
 #include "TextureManager.h"
 #include <cassert>
+#include "MathematicsUtil.h"
 
+using namespace MyMathematics;
 
 
 GameScene::GameScene() {
@@ -12,10 +14,20 @@ GameScene::GameScene() {
 GameScene::~GameScene() { 
 	//delete sprite_;
 	delete player_;
-	
+	delete modelBlock_;
+	delete debugCamera_;
+
+	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
+		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
+		delete worldTransformBlock;
+	    }
+	}
+	worldTransformBlocks_.clear();
+
 }
 
 void GameScene::Initialize() {
+
 
 	dxCommon_ = DirectXCommon::GetInstance();
 	input_ = Input::GetInstance();
@@ -25,23 +37,80 @@ void GameScene::Initialize() {
 
 	playerModel_ = new Model();
 
-	playerViewProjection_ = new ViewProjection();
+	ViewProjection_ = new ViewProjection();
 
     uint32_t playerTextureHandle = TextureManager::Load("./Resources/kuma1.png");
 
 	playerModel_ = Model::Create();
 
-	playerViewProjection_->Initialize();
+	ViewProjection_->Initialize();
 
-	player_->Initialize(playerModel_, playerTextureHandle, playerViewProjection_);
+	player_->Initialize(playerModel_, playerTextureHandle, ViewProjection_);
 
+	///////////////////////////////////
+
+
+	//uint32_t blockTextureHandle = TextureManager::Load("../Resources./cube/cube.jpg");
+
+	modelBlock_ = Model::Create();
+
+	
+
+
+
+	//要素数
+	const uint32_t kNumBlockVertical = 20;
+	const uint32_t kNumBlockHorizontal = 20;
+	//
+	const float kBlockWidth = 2.0f;
+	const float kBlockHeight = 2.0f;
+
+	worldTransformBlocks_.resize(kNumBlockVertical);
+	for (uint32_t i = 0; i < kNumBlockVertical; ++i) 
+	{
+		worldTransformBlocks_[i].resize(kNumBlockHorizontal);
+	}
+	//cubeの生成
+	for (uint32_t i = 0; i < kNumBlockVertical; ++i) {
+		for (uint32_t j = 0; j < kNumBlockHorizontal; ++j) {
+			worldTransformBlocks_[i][j] = new WorldTransform();
+			worldTransformBlocks_[i][j]->Initialize();
+			worldTransformBlocks_[i][j]->translation_.x = kBlockWidth * j;
+			worldTransformBlocks_[i][j]->translation_.y = kBlockHeight * i;
+		}
+	}
+
+	debugCamera_ = new DebugCamera(kNumBlockHorizontal, kNumBlockVertical);
 
 }
 
 void GameScene::Update() {
 
 	player_->Update();
+	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
+		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
+			if (!worldTransformBlock)
+				continue;
+			worldTransformBlock->matWorld_ = MakeAffineMatrix(worldTransformBlock->scale_, worldTransformBlock->rotation_, worldTransformBlock->translation_);
+		}
+	}
+
 	
+
+	#ifdef _DEBUG
+	if (input_->TriggerKey(DIK_D)) {
+		isDebugCameraActive_ = true;
+	}
+	if (isDebugCameraActive_) {
+		debugCamera_->Update();
+		ViewProjection_->matView = debugCamera_->GetViewProjection().matView;
+		ViewProjection_->matProjection = debugCamera_->GetViewProjection().matProjection;
+		ViewProjection_->TransferMatrix();
+	} else {
+		ViewProjection_->UpdateMatrix();
+	}
+	
+	#endif
 }
 
 void GameScene::Draw() {
@@ -72,9 +141,15 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
-	player_->Draw();
-
-	
+	//player_->Draw();
+	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
+		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
+			modelBlock_->Draw(*worldTransformBlock, *ViewProjection_);
+		}
+	}
+	/*for (WorldTransform* worldTransformBlock : worldTransformBlocks_) {
+		modelBlock_->Draw(*worldTransformBlock, ViewProjection_);
+	}*/
 
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();

@@ -1,6 +1,7 @@
 #include "Player.h"
 #include <cassert>
 #include "TextureManager.h"
+#include "Mathematics.h"
 
 Player::Player() {
 }

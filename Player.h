@@ -44,4 +44,6 @@ class Player {
 
 			ViewProjection* viewProjection_ = nullptr;
 
+		
+			
 };

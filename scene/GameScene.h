@@ -9,6 +9,10 @@
 #include "WorldTransform.h"
 #include "ImGuiManager.h"
 #include "Player.h"
+#include <vector>
+#include "DebugCamera.h"
+
+
 
 /// <summary>
 /// ゲームシーン
@@ -57,8 +61,19 @@ private: // メンバ変数
 	//ViewProjection viewProjection_;
 	//自キャラ
 	Player* player_ = nullptr;
-	ViewProjection* playerViewProjection_ = nullptr;
+	//ViewProjection* ViewProjection_ = nullptr;
 	Model* playerModel_ = nullptr;
+
+	///////////////////////////////////////
+
+	uint32_t block_ = 0u;
+	Model* modelBlock_ = nullptr;
+	ViewProjection* ViewProjection_ = nullptr;
+	std::vector<std::vector<WorldTransform*>> worldTransformBlocks_;
+
+	bool isDebugCameraActive_ = false;
+
+	DebugCamera* debugCamera_ = nullptr;
 
 
 	/// </summary>
