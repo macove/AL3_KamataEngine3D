@@ -27,7 +27,7 @@ void Player::Initialize(Model* model, uint32_t textureHandle, ViewProjection* vi
 
 void Player::Update() { 
 	
-	worldTransform_.TransferMatrix(); 
+	worldTransform_.UpdateMatrix(); 
 
 }
 

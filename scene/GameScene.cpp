@@ -16,6 +16,7 @@ GameScene::~GameScene() {
 	delete player_;
 	delete modelBlock_;
 	delete debugCamera_;
+	delete modelSkydome_;
 
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
@@ -28,7 +29,7 @@ GameScene::~GameScene() {
 
 void GameScene::Initialize() {
 
-
+	
 	dxCommon_ = DirectXCommon::GetInstance();
 	input_ = Input::GetInstance();
 	audio_ = Audio::GetInstance();
@@ -44,6 +45,8 @@ void GameScene::Initialize() {
 	playerModel_ = Model::Create();
 
 	ViewProjection_->Initialize();
+
+	//ViewProjection_->farZ = 10;
 
 	player_->Initialize(playerModel_, playerTextureHandle, ViewProjection_);
 
@@ -64,7 +67,6 @@ void GameScene::Initialize() {
 	
 	for (uint32_t i = 0; i < kNumBlockVertical; ++i) 
 	{
-	
 		worldTransformBlocks_[i].resize(kNumBlockHorizontal);
 		// cubeの生成
 		for (uint32_t j = 0; j < kNumBlockHorizontal; ++j) {
@@ -81,11 +83,23 @@ void GameScene::Initialize() {
 
 	debugCamera_ = new DebugCamera(kNumBlockHorizontal, kNumBlockVertical);
 
+	///////////////////////////////////////////////
+
+	skydome_ = new Skydome();
+
+	modelSkydome_ = Model::CreateFromOBJ("skydome", true);
+
+	skydome_->Initialize(modelSkydome_, ViewProjection_);
+
+
+
+
+
 }
 
 void GameScene::Update() {
 
-	//player_->Update();
+	player_->Update();
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
 			if (!worldTransformBlock)
@@ -112,6 +126,7 @@ void GameScene::Update() {
 	}
 	
 	#endif
+	skydome_->Update();
 }
 
 void GameScene::Draw() {
@@ -142,7 +157,7 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
-	//player_->Draw();
+	player_->Draw();
 
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
@@ -152,6 +167,7 @@ void GameScene::Draw() {
 		}
 	}
 	
+	skydome_->Draw();
 
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();

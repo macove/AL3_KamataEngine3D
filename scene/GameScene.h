@@ -11,7 +11,7 @@
 #include "Player.h"
 #include <vector>
 #include "DebugCamera.h"
-
+#include "Skydome.h"
 
 
 /// <summary>
@@ -53,6 +53,8 @@ private: // メンバ変数
 	/// <summary>
 	/// ゲームシーン用
 
+	ViewProjection* ViewProjection_ = nullptr;
+
 	//textureHandle
 	//uint32_t textureHandle_ = 0;
 	//Sprite
@@ -61,19 +63,25 @@ private: // メンバ変数
 	//ViewProjection viewProjection_;
 	//自キャラ
 	Player* player_ = nullptr;
-	//ViewProjection* ViewProjection_ = nullptr;
+	
 	Model* playerModel_ = nullptr;
 
 	///////////////////////////////////////
 
 	uint32_t block_ = 0u;
 	Model* modelBlock_ = nullptr;
-	ViewProjection* ViewProjection_ = nullptr;
+
 	std::vector<std::vector<WorldTransform*>> worldTransformBlocks_;
 
 	bool isDebugCameraActive_ = false;
 
 	DebugCamera* debugCamera_ = nullptr;
+
+	//////////////////////////////////////
+
+	Skydome* skydome_ = nullptr;
+
+	Model* modelSkydome_ = nullptr;
 
 
 	/// </summary>
