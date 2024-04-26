@@ -49,36 +49,35 @@ void GameScene::Initialize() {
 
 	///////////////////////////////////
 
-
-	//uint32_t blockTextureHandle = TextureManager::Load("../Resources./cube/cube.jpg");
-
 	modelBlock_ = Model::Create();
 
-	
-
-
-
 	//要素数
-	const uint32_t kNumBlockVertical = 20;
+	const uint32_t kNumBlockVertical = 10;
 	const uint32_t kNumBlockHorizontal = 20;
 	//
 	const float kBlockWidth = 2.0f;
 	const float kBlockHeight = 2.0f;
-
+	
+	
+	
 	worldTransformBlocks_.resize(kNumBlockVertical);
+	
 	for (uint32_t i = 0; i < kNumBlockVertical; ++i) 
 	{
+	
 		worldTransformBlocks_[i].resize(kNumBlockHorizontal);
-	}
-	//cubeの生成
-	for (uint32_t i = 0; i < kNumBlockVertical; ++i) {
+		// cubeの生成
 		for (uint32_t j = 0; j < kNumBlockHorizontal; ++j) {
-			worldTransformBlocks_[i][j] = new WorldTransform();
-			worldTransformBlocks_[i][j]->Initialize();
-			worldTransformBlocks_[i][j]->translation_.x = kBlockWidth * j;
-			worldTransformBlocks_[i][j]->translation_.y = kBlockHeight * i;
+			if (i % 2 ==1 && j % 2==1 ||i%2==0 && j%2==0) {
+				worldTransformBlocks_[i][j] = new WorldTransform();
+				worldTransformBlocks_[i][j]->Initialize();
+				worldTransformBlocks_[i][j]->translation_.x = kBlockWidth * j;
+				worldTransformBlocks_[i][j]->translation_.y = kBlockHeight * i;
+			}
+			
 		}
 	}
+	
 
 	debugCamera_ = new DebugCamera(kNumBlockHorizontal, kNumBlockVertical);
 
@@ -86,12 +85,13 @@ void GameScene::Initialize() {
 
 void GameScene::Update() {
 
-	player_->Update();
+	//player_->Update();
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
 			if (!worldTransformBlock)
 				continue;
 			worldTransformBlock->matWorld_ = MakeAffineMatrix(worldTransformBlock->scale_, worldTransformBlock->rotation_, worldTransformBlock->translation_);
+			worldTransformBlock->TransferMatrix();
 		}
 	}
 
@@ -101,6 +101,7 @@ void GameScene::Update() {
 	if (input_->TriggerKey(DIK_D)) {
 		isDebugCameraActive_ = true;
 	}
+
 	if (isDebugCameraActive_) {
 		debugCamera_->Update();
 		ViewProjection_->matView = debugCamera_->GetViewProjection().matView;
@@ -142,14 +143,15 @@ void GameScene::Draw() {
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
 	//player_->Draw();
+
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
+			if (!worldTransformBlock)
+				continue;
 			modelBlock_->Draw(*worldTransformBlock, *ViewProjection_);
 		}
 	}
-	/*for (WorldTransform* worldTransformBlock : worldTransformBlocks_) {
-		modelBlock_->Draw(*worldTransformBlock, ViewProjection_);
-	}*/
+	
 
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
