@@ -25,6 +25,7 @@ GameScene::~GameScene() {
 	}
 	worldTransformBlocks_.clear();
 
+	delete mapChipField_;
 }
 
 void GameScene::Initialize() {
@@ -52,36 +53,7 @@ void GameScene::Initialize() {
 
 	///////////////////////////////////
 
-	modelBlock_ = Model::Create();
-
-	//要素数
-	const uint32_t kNumBlockVertical = 10;
-	const uint32_t kNumBlockHorizontal = 20;
-	//
-	const float kBlockWidth = 2.0f;
-	const float kBlockHeight = 2.0f;
 	
-	
-	
-	worldTransformBlocks_.resize(kNumBlockVertical);
-	
-	for (uint32_t i = 0; i < kNumBlockVertical; ++i) 
-	{
-		worldTransformBlocks_[i].resize(kNumBlockHorizontal);
-		// cubeの生成
-		for (uint32_t j = 0; j < kNumBlockHorizontal; ++j) {
-			if (i % 2 ==1 && j % 2==1 ||i%2==0 && j%2==0) {
-				worldTransformBlocks_[i][j] = new WorldTransform();
-				worldTransformBlocks_[i][j]->Initialize();
-				worldTransformBlocks_[i][j]->translation_.x = kBlockWidth * j;
-				worldTransformBlocks_[i][j]->translation_.y = kBlockHeight * i;
-			}
-			
-		}
-	}
-	
-
-	debugCamera_ = new DebugCamera(kNumBlockHorizontal, kNumBlockVertical);
 
 	///////////////////////////////////////////////
 
@@ -91,10 +63,13 @@ void GameScene::Initialize() {
 
 	skydome_->Initialize(modelSkydome_, ViewProjection_);
 
+//////////////////////////////////////////////////////
 
+	mapChipField_ = new MapChipField;
+	mapChipField_->ResetMapChipData();
+	mapChipField_->LoadMapChipCsv("Resources/block.csv");
 
-
-
+	GenerateBlock();
 }
 
 void GameScene::Update() {
@@ -190,3 +165,46 @@ void GameScene::Draw() {
 
 #pragma endregion
 }
+
+void GameScene::GenerateBlock() {
+
+	modelBlock_ = Model::Create();
+
+	// 要素数
+	//const uint32_t kNumBlockVertical = 10;
+	//const uint32_t kNumBlockHorizontal = 20;
+	// 
+
+	
+
+	//
+	//const float kBlockWidth = 2.0f;
+	//const float kBlockHeight = 2.0f;
+
+	//worldTransformBlocks_.resize(kNumBlockVertical);
+
+	uint32_t numBlockVertical = mapChipField_->GetNumBlockVertical();
+	uint32_t numBlockHorizontal = mapChipField_->GetNumBlockHorizontal();
+
+	worldTransformBlocks_.resize(numBlockVertical);
+
+	for (uint32_t i = 0; i < numBlockVertical; ++i) {
+		worldTransformBlocks_[i].resize(numBlockHorizontal);
+		// cubeの生成
+		for (uint32_t j = 0; j < numBlockHorizontal; ++j) {
+			if (mapChipField_->GetMapChipTypeByIndex(j,i) == MapChipType::kBlock) {
+				//worldTransformBlocks_[i][j] = new WorldTransform();
+				//worldTransformBlocks_[i][j]->Initialize();
+				WorldTransform* worldTransform = new WorldTransform();
+				worldTransform->Initialize();
+				worldTransformBlocks_[i][j] = worldTransform;
+				worldTransformBlocks_[i][j]->translation_ = mapChipField_->GetMapChipPositionByIndex(j, i);
+			}
+		}
+	}
+
+	debugCamera_ = new DebugCamera(numBlockHorizontal, numBlockVertical);
+
+}
+
+

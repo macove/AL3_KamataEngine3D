@@ -12,6 +12,8 @@
 #include <vector>
 #include "DebugCamera.h"
 #include "Skydome.h"
+#include "MapChipField.h"
+
 
 
 /// <summary>
@@ -44,6 +46,12 @@ public: // メンバ関数
 	/// 描画
 	/// </summary>
 	void Draw();
+
+
+	/////////////////////////
+
+	void GenerateBlock();
+
 
 private: // メンバ変数
 	DirectXCommon* dxCommon_ = nullptr;
@@ -83,6 +91,10 @@ private: // メンバ変数
 
 	Model* modelSkydome_ = nullptr;
 
+
+	//////////////////////////////////////
+	//map chip field
+	MapChipField* mapChipField_;
 
 	/// </summary>
 };
