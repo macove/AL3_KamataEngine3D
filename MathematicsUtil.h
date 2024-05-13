@@ -5,6 +5,7 @@
 
 namespace MyMathematics {
 
+    Vector3 Add(const Vector3& v1, const Vector3& v2);
 	Matrix4x4 MakeRotateXMatrix(float radian);
 	Matrix4x4 MakeRotateYMatrix(float radian);
 	Matrix4x4 MakeRotateZMatrix(float radian);

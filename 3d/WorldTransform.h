@@ -5,7 +5,7 @@
 #include <d3d12.h>
 #include <type_traits>
 #include <wrl.h>
-#include "Mathematics.h"
+
 
 
 

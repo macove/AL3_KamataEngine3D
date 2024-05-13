@@ -14,9 +14,10 @@ GameScene::GameScene() {
 GameScene::~GameScene() { 
 	//delete sprite_;
 	delete player_;
+	//delete playerModel_;
 	delete modelBlock_;
-	delete debugCamera_;
 	delete modelSkydome_;
+	delete ViewProjection_;
 
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
@@ -26,6 +27,7 @@ GameScene::~GameScene() {
 	worldTransformBlocks_.clear();
 
 	delete mapChipField_;
+	delete debugCamera_;
 }
 
 void GameScene::Initialize() {
@@ -49,11 +51,13 @@ void GameScene::Initialize() {
 
 	//ViewProjection_->farZ = 10;
 
-	player_->Initialize(playerModel_, playerTextureHandle, ViewProjection_);
+	Vector3 playerPosition = mapChipField_->GetMapChipPositionByIndex(1,18);
+
+	player_->Initialize(playerModel_, playerTextureHandle, ViewProjection_, playerPosition);
 
 	///////////////////////////////////
 
-	
+	debugCamera_ = new DebugCamera(1280, 720);
 
 	///////////////////////////////////////////////
 
@@ -70,6 +74,10 @@ void GameScene::Initialize() {
 	mapChipField_->LoadMapChipCsv("Resources/block.csv");
 
 	GenerateBlock();
+
+
+
+
 }
 
 void GameScene::Update() {
@@ -203,7 +211,8 @@ void GameScene::GenerateBlock() {
 		}
 	}
 
-	debugCamera_ = new DebugCamera(numBlockHorizontal, numBlockVertical);
+	
+	
 
 }
 
