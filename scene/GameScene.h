@@ -49,6 +49,8 @@ public: // メンバ関数
 
 
 	/////////////////////////
+	/////////////////////////
+	/////////////////////////
 
 	void GenerateBlock();
 
@@ -94,7 +96,7 @@ private: // メンバ変数
 
 	//////////////////////////////////////
 	//map chip field
-	MapChipField* mapChipField_;
+	MapChipField* mapChipField_ = nullptr;
 
 	/// </summary>
 };

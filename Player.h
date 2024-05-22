@@ -1,10 +1,33 @@
 #include "WorldTransform.h"
 #include "Model.h"
 #include "MathematicsUtil.h"
+#include "PlayerModel.h"
+
+class MapChipField;
 
 enum class LRDirection {
 	kRight,
 	kLeft,
+};
+
+enum Corner {
+	kRightUp,
+	kRightDown,
+	kBottomRight,
+	kBottomLeft,
+	kLeftDown,
+	kLeftUp,
+	kTopLeft,
+	kTopRight,
+	kNumCorner
+
+};
+
+struct  CollisionMapInfo {
+	bool CheckCeilingCollision = false;
+	bool CheckLandingStatus = false;
+	bool CheckWallCollision = false;
+	Vector3 CalculatePlayerMovement;
 };
 
 
@@ -26,7 +49,7 @@ class Player {
 
 		///</param>
 
-	    void Initialize(Model* model, uint32_t textureHandle, ViewProjection* viewProjection, const Vector3& position);
+	    void Initialize(Model* model, ViewProjection* viewProjection, const Vector3& position);
 
 		/// <summary>
 	    /// 更新
@@ -42,13 +65,22 @@ class Player {
 		float easeInSine(float frameX, float startX, float endX, float endFrameX); 
 		float easeIn(float frameX);
 
+		void setMapChipField(MapChipField* mapChipField) { this->mapChipField_ = mapChipField; }
+
+		void UpdateInput();
+
+		void HandleDirectionChange(bool rightPressed, bool leftPressed);
+
+		void CheckMapUpCollision(CollisionMapInfo& info);
+	    void CheckMapDownCollision(CollisionMapInfo& info);
+	    //void CheckMapRightCollision(CollisionMapInfo& info);
+	    //void CheckMapLeftCollision(CollisionMapInfo& info);
+
 		private:
 
 			WorldTransform worldTransform_;
 
 			Model* model_ = nullptr;
-
-			uint32_t textureHandle_ = 0u;
 
 			ViewProjection* viewProjection_ = nullptr;
 
@@ -56,7 +88,7 @@ class Player {
 
 			static inline const float kAcceleration = 1;
 
-			static inline const float kAttenuation = 0.7f;
+			static inline const float kAttenuation = 0.2f;
 
 			static inline const float kLimitRunSpeed = 1;
 			
@@ -75,6 +107,12 @@ class Player {
 			static inline const float kLimitFallSpeed = 2.0f;
 
 			static inline const float kJumpAcceleration = 5.0f;
+
+			MapChipField* mapChipField_ = nullptr;
+
+			static inline const float kWidth = 0.8f;
+
+			static inline const float kHeight = 0.8f;
 
 
 };

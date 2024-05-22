@@ -28,8 +28,8 @@ public:
 
 	Vector3 GetMapChipPositionByIndex(uint32_t xIndex, uint32_t yIndex);
 
-	uint32_t GetNumBlockVertical();
-	uint32_t GetNumBlockHorizontal();
+	uint32_t GetNumBlockVertical() { return kNumBlockVertical; }
+	uint32_t GetNumBlockHorizontal() { return kNumBlockHorizontal; }
 
 
 

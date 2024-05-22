@@ -19,17 +19,16 @@ Player::Player() {
 
 Player::~Player() {
 
-delete model_;
+//delete model_;
 
 }
 
-void Player::Initialize(Model* model, uint32_t textureHandle, ViewProjection* viewProjection, const Vector3& position) { 
+void Player::Initialize(Model* model, ViewProjection* viewProjection, const Vector3& position) { 
 	
 
 	assert(model); 
 
-	this->model_ = model;
-	textureHandle_ = textureHandle;
+	model_ = model;
 	viewProjection_ = viewProjection;
 
 	worldTransform_.Initialize();
@@ -60,46 +59,12 @@ void Player::Update() {
 		onGround_ = false;
 		}
 
-	if (Input::GetInstance()->PushKey(DIK_RIGHT)|| 
-		Input::GetInstance()->PushKey(DIK_LEFT)) {
 	
-	Vector3 acceleration = {};
-		if (Input::GetInstance()->PushKey(DIK_RIGHT)) {
-		if (velocity_.x < 0.0f) {
-				velocity_.x *= (1.0f - kAttenuation);
-		}
-		    acceleration.x += kAcceleration;
-		if (lrDirection_ != LRDirection::kRight) {
-				lrDirection_ = LRDirection::kRight;
-
-				turnFistRotationY_ = worldTransform_.translation_.y;
-				turnTimer_ = kTimeTurn;
-
-		}
-		} else if (Input::GetInstance()->PushKey(DIK_LEFT)) {
-			if (velocity_.x > 0.0f) {
-				velocity_.x *= (1.0f - kAttenuation);
-			}
-			acceleration.x -= kAcceleration;
-			if (lrDirection_ != LRDirection::kLeft) {
-				lrDirection_ = LRDirection::kLeft;
-
-				turnFistRotationY_ = worldTransform_.translation_.y;
-				turnTimer_ = kTimeTurn;
-
-			}
-		}
-		velocity_ = Add(velocity_,acceleration);
-
-		velocity_.x = std::clamp(velocity_.x, -kLimitRunSpeed, kLimitRunSpeed);
-	} else {
-		velocity_.x *= (1.0f - kAttenuation);
-	}
 	if (Input::GetInstance()->PushKey(DIK_UP)) {
 		velocity_ = Add(velocity_, Vector3(0, kJumpAcceleration, 0));
 
-
 	}
+
 	} else {
 
 		velocity_ = Add(velocity_, Vector3(0, -kGravityAcceleration, 0));
@@ -108,7 +73,7 @@ void Player::Update() {
 
 		if (landing) {
 
-			worldTransform_.translation_.y = 1.0f;
+			worldTransform_.translation_.y = 2.0f;
 
 			velocity_.x *= (1.0f - kAttenuation);
 
@@ -121,26 +86,18 @@ void Player::Update() {
 
 	}
 
-	
+	UpdateInput();
 
-	if (turnTimer_>0.0f) {
-
-		turnTimer_ -= 1 / 60;
-
-		float destinationRotationYTable[] = {std::numbers::pi_v<float> / 2.0f, std::numbers::pi_v<float> * 3.0f / 2.0f};
-
-		float destinationRotationY = destinationRotationYTable[static_cast<uint32_t>(lrDirection_)];
-
-		worldTransform_.rotation_.y = easeInSine(turnTimer_, turnFistRotationY_, destinationRotationY, kTimeTurn);
-
-	}
+	CollisionMapInfo collisionMapInpo;
+	collisionMapInpo.CalculatePlayerMovement = velocity_;
+	//CheckMapCollision(collisionMapInpo);
 	
 }
 
 
 void Player::Draw() {
 
-	model_->Draw(worldTransform_, *viewProjection_, textureHandle_);
+	model_->Draw(worldTransform_, *viewProjection_);
 	
 
 }
@@ -148,11 +105,64 @@ void Player::Draw() {
 
 
 float Player::easeInSine(float frameX, float startX, float endX, float endFrameX) {
-	
-	float positionX = startX + (endX - startX) * easeIn(frameX / endFrameX);
-
-	    return positionX;
+    float positionX = startX + (endX - startX) * easeIn(frameX / endFrameX);
+    return positionX;
 }
 
 float Player::easeIn(float frameX) { 
-	return 1 - cosf(frameX * (float(M_PI) / 2.0f)); }
+    return 1 - cosf(frameX * (float(M_PI) / 2.0f)); 
+}
+
+void Player::UpdateInput() {
+	Vector3 acceleration = {};
+
+	bool rightPressed = Input::GetInstance()->PushKey(DIK_RIGHT);
+	bool leftPressed = Input::GetInstance()->PushKey(DIK_LEFT);
+
+	if (rightPressed || leftPressed) {
+		HandleDirectionChange(rightPressed, leftPressed);
+		acceleration.x = rightPressed ? kAcceleration : -kAcceleration;
+	}
+
+	velocity_ = Add(velocity_, acceleration);
+	velocity_.x = std::clamp(velocity_.x, -kLimitRunSpeed, kLimitRunSpeed);
+
+	if (!rightPressed && !leftPressed) {
+		velocity_.x *= (1.0f - kAttenuation);
+		return; 
+	}
+
+	if (turnTimer_ > 0.0f) {
+		turnTimer_ -= 0.1f / 60.0f;
+		float destinationRotationYTable[] = {std::numbers::pi_v<float> / 2.0f, std::numbers::pi_v<float> * 3.0f / 2.0f};
+
+		float destinationRotationY = destinationRotationYTable[static_cast<uint32_t>(lrDirection_)];
+		worldTransform_.rotation_.y = easeInSine(turnTimer_, turnFistRotationY_, destinationRotationY, kTimeTurn);
+	}
+}
+
+void Player::HandleDirectionChange(bool rightPressed, bool leftPressed) {
+    LRDirection newDirection = rightPressed ? LRDirection::kRight : LRDirection::kLeft;
+    if (newDirection != lrDirection_) {
+        lrDirection_ = newDirection;
+        turnFistRotationY_ = worldTransform_.rotation_.y; // rotation_.y
+        turnTimer_ = kTimeTurn;
+    }
+    if ((rightPressed && velocity_.x < 0.0f) || (leftPressed && velocity_.x > 0.0f)) {
+        velocity_.x *= (1.0f - kAttenuation);
+    }
+}
+
+//void Player::CheckMapUpCollision(CollisionMapInfo& info) {}
+
+//void Player::CheckMapDownCollision(CollisionMapInfo& info) {}
+
+//void Player::CheckMapRightCollision(CollisionMapInfo& info) {}
+//
+//void Player::CheckMapLeftCollision(CollisionMapInfo& info) {}
+
+
+
+
+
+

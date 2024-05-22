@@ -14,11 +14,11 @@ GameScene::GameScene() {
 GameScene::~GameScene() { 
 	//delete sprite_;
 	delete player_;
-	//delete playerModel_;
+	delete playerModel_;
 	delete modelBlock_;
 	delete modelSkydome_;
 	delete ViewProjection_;
-
+	delete skydome_;
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
 		delete worldTransformBlock;
@@ -43,17 +43,27 @@ void GameScene::Initialize() {
 
 	ViewProjection_ = new ViewProjection();
 
-    uint32_t playerTextureHandle = TextureManager::Load("./Resources/kuma1.png");
-
-	playerModel_ = Model::Create();
+	playerModel_ = Model::CreateFromOBJ("playerModel", true);
 
 	ViewProjection_->Initialize();
 
 	//ViewProjection_->farZ = 10;
 
+	//////////////////////////////////////////////////////
+
+	mapChipField_ = new MapChipField;
+	mapChipField_->ResetMapChipData();
+	mapChipField_->LoadMapChipCsv("Resources/block.csv");
+
+	GenerateBlock();
+
+	/////////////////////////////////
+
 	Vector3 playerPosition = mapChipField_->GetMapChipPositionByIndex(1,18);
 
-	player_->Initialize(playerModel_, playerTextureHandle, ViewProjection_, playerPosition);
+	player_->Initialize(playerModel_, ViewProjection_, playerPosition);
+
+	player_->setMapChipField(mapChipField_);
 
 	///////////////////////////////////
 
@@ -67,15 +77,9 @@ void GameScene::Initialize() {
 
 	skydome_->Initialize(modelSkydome_, ViewProjection_);
 
-//////////////////////////////////////////////////////
-
-	mapChipField_ = new MapChipField;
-	mapChipField_->ResetMapChipData();
-	mapChipField_->LoadMapChipCsv("Resources/block.csv");
-
-	GenerateBlock();
 
 
+	
 
 
 }
@@ -83,6 +87,9 @@ void GameScene::Initialize() {
 void GameScene::Update() {
 
 	player_->Update();
+
+	
+
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
 			if (!worldTransformBlock)
@@ -96,7 +103,7 @@ void GameScene::Update() {
 
 	#ifdef _DEBUG
 	if (input_->TriggerKey(DIK_D)) {
-		isDebugCameraActive_ = true;
+		isDebugCameraActive_ ^= true;
 	}
 
 	if (isDebugCameraActive_) {
@@ -179,17 +186,6 @@ void GameScene::GenerateBlock() {
 	modelBlock_ = Model::Create();
 
 	// 要素数
-	//const uint32_t kNumBlockVertical = 10;
-	//const uint32_t kNumBlockHorizontal = 20;
-	// 
-
-	
-
-	//
-	//const float kBlockWidth = 2.0f;
-	//const float kBlockHeight = 2.0f;
-
-	//worldTransformBlocks_.resize(kNumBlockVertical);
 
 	uint32_t numBlockVertical = mapChipField_->GetNumBlockVertical();
 	uint32_t numBlockHorizontal = mapChipField_->GetNumBlockHorizontal();
@@ -201,8 +197,6 @@ void GameScene::GenerateBlock() {
 		// cubeの生成
 		for (uint32_t j = 0; j < numBlockHorizontal; ++j) {
 			if (mapChipField_->GetMapChipTypeByIndex(j,i) == MapChipType::kBlock) {
-				//worldTransformBlocks_[i][j] = new WorldTransform();
-				//worldTransformBlocks_[i][j]->Initialize();
 				WorldTransform* worldTransform = new WorldTransform();
 				worldTransform->Initialize();
 				worldTransformBlocks_[i][j] = worldTransform;
