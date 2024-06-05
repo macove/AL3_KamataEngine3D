@@ -11,6 +11,7 @@ GameScene::~GameScene() {
 	//delete sprite_;
 	delete player_;
 	delete playerModel_;
+	delete ViewProjection_;
 	delete debugCamera_;
 }
 
@@ -24,43 +25,58 @@ void GameScene::Initialize() {
 
 	playerModel_ = new Model();
 
-	playerViewProjection_ = new ViewProjection();
+	ViewProjection_ = new ViewProjection();
 
 	 uint32_t playerTextureHandle = TextureManager::Load("./Resources/sample.png");
 
 	 playerModel_ = Model::Create();
 
-	playerViewProjection_->Initialize();
+	ViewProjection_->Initialize();
 
-	player_->Initialize(playerModel_, playerTextureHandle, playerViewProjection_);
+	player_->Initialize(playerModel_, playerTextureHandle, ViewProjection_);
 
+	debugCamera_ = new DebugCamera(1920, 1080);
 
 	//worldTransform_.Initialize();
 	//soundDateHandle_ = audio_->LoadWave("./Resources/fanfare.wav");
 	//audio_->PlayWave(soundDateHandle_);
 	//voiceHandle_ = audio_->PlayWave(soundDateHandle_, true);
 	//PrimitiveDrawer::GetInstance()->SetViewProjection(&viewProjection_);
-	//debugCamera_ = new DebugCamera(1920, 1080);
-	//AxisIndicator::GetInstance()->SetVisible(true);
-	//AxisIndicator::GetInstance()->SetTargetViewProjection(&debugCamera_->GetViewProjection());
+	AxisIndicator::GetInstance()->SetVisible(true);
+	AxisIndicator::GetInstance()->SetTargetViewProjection(&debugCamera_->GetViewProjection());
 }
 
 void GameScene::Update() {
 
 	player_->Update();
 
-	//if (input_->TriggerKey(DIK_SPACE)) {
-	//	audio_->StopWave(voiceHandle_);
-	//}
+	debugCamera_->Update();
+
+	#ifdef _DEBUG
+	if (input_->TriggerKey(DIK_D)) {
+		isDebugCameraActive_ ^= true;
+	}
+	if (isDebugCameraActive_) {
+		debugCamera_->Update();
+		ViewProjection_->matView = debugCamera_->GetViewProjection().matView;
+		ViewProjection_->matProjection = debugCamera_->GetViewProjection().matProjection;
+		ViewProjection_->TransferMatrix();
+	} else {
+		ViewProjection_->UpdateMatrix();
+	}
+
+
+
+    #endif
 
 	//ImGui::Begin("Debug1");
 	//ImGui::InputFloat3("InputFloat3", inputFloat3);
-	//ImGui::SliderFloat3("SliderFloat3", inputFloat3, 0.0f, 1.0f);
+	//ImGui::SliderFloat3("asd", , 0.0f, 10.0f);
 	//ImGui::End();
 	//
 	//ImGui::ShowDemoWindow();
 
-	//debugCamera_->Update();
+	
 
 }
 

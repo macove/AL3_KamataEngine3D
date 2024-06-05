@@ -47,20 +47,13 @@ private: // メンバ変数
 	Input* input_ = nullptr;
 	Audio* audio_ = nullptr;
 
-	/// <summary>
-	/// ゲームシーン用
-
-	//
-	
-	//WorldTransform worldTransform_;
 
 	Player* player_ = nullptr;
-	ViewProjection* playerViewProjection_ = nullptr;
+	ViewProjection* ViewProjection_ = nullptr;
 	Model* playerModel_ = nullptr;
 
-	//uint32_t soundDateHandle_ = 0;
-	//uint32_t voiceHandle_ = 0;
-	float inputFloat3[3] = {0, 0, 0};
+	bool isDebugCameraActive_ = false;
+	
 	DebugCamera* debugCamera_ = nullptr;
 
 

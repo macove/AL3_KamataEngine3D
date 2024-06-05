@@ -1,6 +1,12 @@
 #include "WorldTransform.h"
 #include "Model.h"
+#include "Input.h"
+#include "MathematicsUtil.h"
+#include "imgui.h"
 #pragma once
+
+
+
 
 class Player {
 
@@ -31,6 +37,8 @@ class Player {
 
 	        ViewProjection* viewProjection_ = nullptr;
 
+			Input* input_ = nullptr;
 
+			WorldTransform* worldTransformBlock = nullptr;
 
 };
