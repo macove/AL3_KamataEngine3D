@@ -23,7 +23,6 @@ Player::~Player() {
 	
 	delete bullet_;
 	
-
 }
 
 void Player::Initialize(Model* model, uint32_t textureHandle, ViewProjection* viewProjection) {
@@ -136,8 +135,11 @@ void Player::Attack() {
 
 if (input_->PushKey(DIK_SPACE)) {
 	
+delete bullet_;
+
 PlayerBullet* newBullet = new PlayerBullet();
 	newBullet->Initialize(model_, worldTransform_.translation_, viewProjection_);
+
 
 	 bullet_ = newBullet;
 
