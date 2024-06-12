@@ -13,6 +13,7 @@ GameScene::~GameScene() {
 	delete playerModel_;
 	delete ViewProjection_;
 	delete debugCamera_;
+	
 }
 
 void GameScene::Initialize() {
@@ -53,7 +54,7 @@ void GameScene::Update() {
 	debugCamera_->Update();
 
 	#ifdef _DEBUG
-	if (input_->TriggerKey(DIK_D)) {
+	if (input_->TriggerKey(DIK_Q)) {
 		isDebugCameraActive_ ^= true;
 	}
 	if (isDebugCameraActive_) {
@@ -64,19 +65,7 @@ void GameScene::Update() {
 	} else {
 		ViewProjection_->UpdateMatrix();
 	}
-
-
-
     #endif
-
-	//ImGui::Begin("Debug1");
-	//ImGui::InputFloat3("InputFloat3", inputFloat3);
-	//ImGui::SliderFloat3("asd", , 0.0f, 10.0f);
-	//ImGui::End();
-	//
-	//ImGui::ShowDemoWindow();
-
-	
 
 }
 

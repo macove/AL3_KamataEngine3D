@@ -5,9 +5,26 @@
 #include <cassert>
 #include "TextureManager.h"
 #include <algorithm>
+#include <math.h>
+
+
+
+
+
 
 using namespace MyMathematics;
 
+
+
+
+
+
+Player::~Player() { 
+	
+	delete bullet_;
+	
+
+}
 
 void Player::Initialize(Model* model, uint32_t textureHandle, ViewProjection* viewProjection) {
 
@@ -28,9 +45,11 @@ void Player::Initialize(Model* model, uint32_t textureHandle, ViewProjection* vi
 
 void Player::Update() {
 
-	worldTransformBlock->matWorld_ = MakeAffineMatrix(worldTransformBlock->scale_, worldTransformBlock->rotation_, worldTransformBlock->translation_);
+	//worldTransformBlock->matWorld_ = MakeAffineMatrix(worldTransformBlock->scale_, worldTransformBlock->rotation_, worldTransformBlock->translation_);
+	//
+	//worldTransformBlock->TransferMatrix();
 
-	worldTransformBlock->TransferMatrix();
+	worldTransformBlock->UpdateMatrix();
 
 	worldTransform_.TransferMatrix(); 
 
@@ -59,7 +78,15 @@ void Player::Update() {
 	worldTransform_.translation_.y = std::max(worldTransform_.translation_.y, -kMoveLimitY);
 	worldTransform_.translation_.y = std::min(worldTransform_.translation_.y, +kMoveLimitY);
 
+	Rotate();
 
+
+	Attack();
+
+	if (bullet_) {
+	
+	bullet_->Update();
+	}
 
 	ImGui::Begin("Player");
 	ImGui::PushItemWidth(100); 
@@ -78,5 +105,45 @@ void Player::Update() {
 void Player::Draw() {
 
 	model_->Draw(worldTransform_, *viewProjection_, textureHandle_);
+
+	if (bullet_) {
+		bullet_->Draw();
+	}
+
+}
+
+void Player::Rotate() {
+
+
+
+bool aPressed = input_->PushKey(DIK_A);
+bool dPressed = input_->PushKey(DIK_D);
+
+if (aPressed || dPressed) {
+
+worldTransform_.rotation_.y += aPressed ? kRotSpeed : -kRotSpeed;
+
+}
+
+
+
+
+
+}
+
+void Player::Attack() {
+
+
+if (input_->PushKey(DIK_SPACE)) {
+	
+PlayerBullet* newBullet = new PlayerBullet();
+	newBullet->Initialize(model_, worldTransform_.translation_, viewProjection_);
+
+	 bullet_ = newBullet;
+
+}
+
+
+
 
 }

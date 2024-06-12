@@ -3,7 +3,10 @@
 #include "Input.h"
 #include "MathematicsUtil.h"
 #include "imgui.h"
+#include "PlayerBullet.h"
+
 #pragma once
+
 
 
 
@@ -11,10 +14,9 @@
 class Player {
 
 
-
 	public:
 
-
+		 ~Player();
 
 		 void Initialize(Model* model, uint32_t textureHandle, ViewProjection* viewProjection);
 
@@ -22,9 +24,9 @@ class Player {
 
 		 void Draw();
 
+		 void Rotate();
 
-
-
+		 void Attack();
 
 		private:
 
@@ -40,5 +42,9 @@ class Player {
 			Input* input_ = nullptr;
 
 			WorldTransform* worldTransformBlock = nullptr;
+
+			static inline const float kRotSpeed = 0.02f;
+
+			PlayerBullet* bullet_ = nullptr;
 
 };
