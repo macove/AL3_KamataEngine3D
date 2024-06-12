@@ -12,6 +12,8 @@ GameScene::~GameScene() {
 	delete player_;
 	delete playerModel_;
 	delete ViewProjection_;
+	delete enemy_;
+	delete enemyModel_;
 	delete debugCamera_;
 	
 }
@@ -28,13 +30,23 @@ void GameScene::Initialize() {
 
 	ViewProjection_ = new ViewProjection();
 
-	 uint32_t playerTextureHandle = TextureManager::Load("./Resources/sample.png");
+	uint32_t playerTextureHandle = TextureManager::Load("./Resources/sample.png");
 
-	 playerModel_ = Model::Create();
+	playerModel_ = Model::Create();
 
 	ViewProjection_->Initialize();
 
 	player_->Initialize(playerModel_, playerTextureHandle, ViewProjection_);
+
+	enemy_ = new Enemy();
+
+	enemyModel_ = new Model();
+
+	enemyModel_ = Model::Create();
+
+	Vector3 enemyPosition = {10.0f, 0.0f, 0.0f};
+
+	enemy_->Initialize(enemyModel_, enemyPosition, ViewProjection_);
 
 	debugCamera_ = new DebugCamera(1920, 1080);
 
@@ -50,6 +62,8 @@ void GameScene::Initialize() {
 void GameScene::Update() {
 
 	player_->Update();
+
+	enemy_->Update();
 
 	debugCamera_->Update();
 
@@ -99,6 +113,8 @@ void GameScene::Draw() {
 	/// </summary>
 
 	player_->Draw();
+
+	enemy_->Draw();
 
 	// model_->Draw(worldTransform_, viewProjection_, textureHandle_);
 	//model_->Draw(worldTransform_, debugCamera_->GetViewProjection(), textureHandle_);

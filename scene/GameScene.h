@@ -10,6 +10,7 @@
 #include "ImGuiManager.h"
 #include "DebugCamera.h"
 #include "Player.h"
+#include "Enemy.h"
 
 /// <summary>
 /// ゲームシーン
@@ -56,8 +57,8 @@ private: // メンバ変数
 	
 	DebugCamera* debugCamera_ = nullptr;
 
-
-
+	Enemy* enemy_ = nullptr;
+	Model* enemyModel_ = nullptr;
 
 
 	/// </summary>
