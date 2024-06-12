@@ -4,6 +4,7 @@
 #include "MathematicsUtil.h"
 #include "imgui.h"
 #include "PlayerBullet.h"
+#include <list>
 
 #pragma once
 
@@ -45,6 +46,7 @@ class Player {
 
 			static inline const float kRotSpeed = 0.02f;
 
-			PlayerBullet* bullet_ = nullptr;
+
+	        std::list<PlayerBullet*> bullets_;
 
 };

@@ -21,7 +21,9 @@ using namespace MyMathematics;
 
 Player::~Player() { 
 	
-	delete bullet_;
+	 for (PlayerBullet* bullet : bullets_) {
+		delete bullet;
+	}
 	
 }
 
@@ -82,10 +84,10 @@ void Player::Update() {
 
 	Attack();
 
-	if (bullet_) {
-	
-	bullet_->Update();
+	for (PlayerBullet* bullet : bullets_) {
+		bullet->Update();
 	}
+	
 
 	ImGui::Begin("Player");
 	ImGui::PushItemWidth(100); 
@@ -105,8 +107,8 @@ void Player::Draw() {
 
 	model_->Draw(worldTransform_, *viewProjection_, textureHandle_);
 
-	if (bullet_) {
-		bullet_->Draw();
+	for (PlayerBullet* bullet : bullets_) {
+		bullet->Draw();
 	}
 
 }
@@ -133,15 +135,14 @@ worldTransform_.rotation_.y += aPressed ? kRotSpeed : -kRotSpeed;
 void Player::Attack() {
 
 
-if (input_->PushKey(DIK_SPACE)) {
-	
-delete bullet_;
+if (input_->TriggerKey(DIK_SPACE)) {
+		
+			
 
 PlayerBullet* newBullet = new PlayerBullet();
 	newBullet->Initialize(model_, worldTransform_.translation_, viewProjection_);
 
-
-	 bullet_ = newBullet;
+	 bullets_.push_back(newBullet);
 
 }
 
