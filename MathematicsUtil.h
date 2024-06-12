@@ -6,6 +6,7 @@
 namespace MyMathematics {
 
     Vector3 Add(const Vector3& v1, const Vector3& v2);
+    Vector3 TransFormNormal(const Vector3& v, const Matrix4x4& m);
 	Matrix4x4 MakeRotateXMatrix(float radian);
 	Matrix4x4 MakeRotateYMatrix(float radian);
 	Matrix4x4 MakeRotateZMatrix(float radian);
