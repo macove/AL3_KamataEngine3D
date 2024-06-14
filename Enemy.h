@@ -5,6 +5,20 @@
 #include "MathematicsUtil.h"
 
 #pragma once
+
+enum class Phase {
+
+	Approach,
+	Leave,
+};
+
+
+
+
+
+
+
+
 class Enemy {
 
 
@@ -27,6 +41,6 @@ private:
 
 	ViewProjection* viewProjection_ = nullptr;
 
-
+	 Phase phase_ = Phase::Approach;
 
 };
