@@ -28,6 +28,11 @@ void Enemy::Update() {
 
  worldTransform_.translation_.z -= kEnemySpeed;
 
+
+  if (worldTransform_.translation_.z < -40.0f) {
+	 worldTransform_.translation_.z = 40.0f;
+ }
+
 }
 
 void Enemy::Draw() {

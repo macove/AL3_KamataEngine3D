@@ -25,36 +25,24 @@ void GameScene::Initialize() {
 	audio_ = Audio::GetInstance();
 
 	player_ = new Player();
-
 	playerModel_ = new Model();
-
 	ViewProjection_ = new ViewProjection();
 
 	uint32_t playerTextureHandle = TextureManager::Load("./Resources/sample.png");
 
 	playerModel_ = Model::Create();
-
 	ViewProjection_->Initialize();
-
 	player_->Initialize(playerModel_, playerTextureHandle, ViewProjection_);
 
 	enemy_ = new Enemy();
-
 	enemyModel_ = new Model();
-
 	enemyModel_ = Model::Create();
 
 	Vector3 enemyPosition = {0.0f, 1.0f, 5.0f};
-
 	enemy_->Initialize(enemyModel_, enemyPosition, ViewProjection_);
 
 	debugCamera_ = new DebugCamera(1920, 1080);
 
-	//worldTransform_.Initialize();
-	//soundDateHandle_ = audio_->LoadWave("./Resources/fanfare.wav");
-	//audio_->PlayWave(soundDateHandle_);
-	//voiceHandle_ = audio_->PlayWave(soundDateHandle_, true);
-	//PrimitiveDrawer::GetInstance()->SetViewProjection(&viewProjection_);
 	AxisIndicator::GetInstance()->SetVisible(true);
 	AxisIndicator::GetInstance()->SetTargetViewProjection(&debugCamera_->GetViewProjection());
 }
@@ -62,9 +50,7 @@ void GameScene::Initialize() {
 void GameScene::Update() {
 
 	player_->Update();
-
 	enemy_->Update();
-
 	debugCamera_->Update();
 
 	#ifdef _DEBUG
