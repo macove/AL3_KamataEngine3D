@@ -46,7 +46,6 @@ class Player {
 
 			static inline const float kRotSpeed = 0.02f;
 
-
 	        std::list<PlayerBullet*> bullets_;
 
 };

@@ -3,7 +3,9 @@
 #include "WorldTransform.h"
 #include "TextureManager.h"
 #include "MathematicsUtil.h"
-
+#include "EnemyBullet.h"
+#include "Input.h"
+#include <list>
 #pragma once
 
 enum class Phase {
@@ -11,10 +13,6 @@ enum class Phase {
 	Approach,
 	Leave,
 };
-
-
-
-
 
 
 
@@ -30,6 +28,9 @@ class Enemy {
 
 	    void Draw();
 
+		void Fire();
+
+		 void InitializeApproachPhase();
 
 private:
 
@@ -43,4 +44,12 @@ private:
 
 	 Phase phase_ = Phase::Approach;
 
+	 Input* input_ = nullptr;
+	 
+	 static const int32_t kLifeTime = 0;
+
+	  static const int32_t kFireInterval = 60;
+	 int32_t fireTimer_ = kFireInterval;
+
+	 std::list<EnemyBullet*> bullets_;
 };

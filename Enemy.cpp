@@ -17,6 +17,7 @@ void Enemy::Initialize(Model* model, const Vector3& position, ViewProjection* vi
 
 	worldTransform_.translation_ = position;
 
+	input_ = Input::GetInstance();
 
 }
 
@@ -26,35 +27,61 @@ void Enemy::Update() {
 
  const float kEnemySpeed = 0.1f;
 
- 
+  worldTransform_.translation_.z -= kEnemySpeed;
+
+  if (--fireTimer_ <= 0) {
+	  Fire();
+	  fireTimer_ = kFireInterval; 
+  }
+  for (EnemyBullet* bullet : bullets_) {
+	  bullet->Update();
+  }
+  /*bullets_.remove_if([](EnemyBullet* bullet) {
+	  if (bullet->IsDead()) {
+
+		  delete bullet;
+		  return true;
+	  }
+	  return false;
+  });*/
 
 
- switch (phase_) { 
- case Phase::Approach:
- default:
-	 worldTransform_.translation_.z -= kEnemySpeed;
 
-	 if (worldTransform_.translation_.z < 0.0f) {
-		 phase_ = Phase::Leave;
-	 }
-	 break;
- case Phase::Leave:
-	
-	 worldTransform_.translation_.x += 0.3f;
-	 break;
- }
+   if (worldTransform_.translation_.z < -40.0f) {
+	  worldTransform_.translation_.z = 40.0f;
+  }
 
-  if (worldTransform_.translation_.x > 40.0f) {
-	 worldTransform_.translation_.z = 5.0f;
-	  worldTransform_.translation_.x = 0.0f;
-	 phase_ = Phase::Approach;
- }
-
+  
 }
 
 void Enemy::Draw() {
 
 	model_->Draw(worldTransform_, *viewProjection_, textureHandle_);
 
+	for (EnemyBullet* bullet : bullets_) {
+		bullet->Draw();
+	}
 
 }
+
+void Enemy::Fire() {
+
+		const float kBulletSpeed = -1.0f;
+		Vector3 velocity(0, 0, kBulletSpeed);
+		velocity = TransFormNormal(velocity, worldTransform_.matWorld_);
+
+		EnemyBullet* newBullet = new EnemyBullet();
+		newBullet->Initialize(model_, worldTransform_.translation_, viewProjection_, velocity);
+
+		bullets_.push_back(newBullet);
+	
+		
+
+}
+
+void Enemy::InitializeApproachPhase() {
+
+	fireTimer_ = kFireInterval;
+}
+
+

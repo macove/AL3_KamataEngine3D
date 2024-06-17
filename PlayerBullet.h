@@ -18,7 +18,7 @@ class PlayerBullet {
 
 	 bool IsDead() const { return isDead_; } 
 
-private:
+public:
 
 	WorldTransform worldTransform_;
 
