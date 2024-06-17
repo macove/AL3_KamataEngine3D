@@ -3,6 +3,13 @@
 
 using namespace MyMathematics;
 
+Enemy::~Enemy() {
+
+	for (EnemyBullet* bullet : bullets_) {
+		delete bullet;
+	}
+}
+
 void Enemy::Initialize(Model* model, const Vector3& position, ViewProjection* viewProjection) {
 
 	assert(model);

@@ -19,8 +19,9 @@ enum class Phase {
 
 class Enemy {
 
+public:
 
-	public:
+	~Enemy();
 
 		void Initialize(Model* model, const Vector3& position, ViewProjection* viewProjection);
 
