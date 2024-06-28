@@ -15,7 +15,7 @@ enum class Phase {
 };
 
 
-
+class Player;
 
 class Enemy {
 
@@ -32,6 +32,8 @@ public:
 		void Fire();
 
 		 void InitializeApproachPhase();
+
+		 void SetPlayer(Player* player) { player_ = player; };
 
 private:
 
@@ -53,4 +55,6 @@ private:
 	 int32_t fireTimer_ = kFireInterval;
 
 	 std::list<EnemyBullet*> bullets_;
+
+	  Player* player_ = nullptr;
 };

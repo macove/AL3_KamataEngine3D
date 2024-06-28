@@ -38,8 +38,11 @@ void GameScene::Initialize() {
 	enemyModel_ = new Model();
 	enemyModel_ = Model::Create();
 
+
 	Vector3 enemyPosition = {10.0f, 1.0f, 5.0f};
 	enemy_->Initialize(enemyModel_, enemyPosition, ViewProjection_);
+
+	enemy_->SetPlayer(player_);
 
 	debugCamera_ = new DebugCamera(1920, 1080);
 

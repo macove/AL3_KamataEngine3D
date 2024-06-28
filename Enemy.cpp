@@ -1,6 +1,6 @@
 #include "Enemy.h"
 #include <cassert>
-
+#include "Player.h"
 using namespace MyMathematics;
 
 Enemy::~Enemy() {
@@ -73,9 +73,16 @@ void Enemy::Draw() {
 
 void Enemy::Fire() {
 
-		const float kBulletSpeed = -1.0f;
-		Vector3 velocity(0, 0, kBulletSpeed);
-		velocity = TransFormNormal(velocity, worldTransform_.matWorld_);
+		const float kBulletSpeed = 1.0f;
+
+		//Vector3 velocity(0, 0, kBulletSpeed);
+		//velocity = TransFormNormal(velocity, worldTransform_.matWorld_);
+
+		Vector3 enemyPos = worldTransform_.translation_;
+	    Vector3 playerPos = player_->GetWorldPosition();
+	    Vector3 direction = Subtract(playerPos,enemyPos);
+	    direction = Normalize(direction);
+	    Vector3 velocity = Multiply(direction,kBulletSpeed);
 
 		EnemyBullet* newBullet = new EnemyBullet();
 		newBullet->Initialize(model_, worldTransform_.translation_, viewProjection_, velocity);

@@ -12,6 +12,45 @@ Vector3 MyMathematics::Add(const Vector3& v1, const Vector3& v2) {
 	return result;
 }
 
+Vector3 MyMathematics::Subtract(const Vector3& v1, const Vector3& v2) { 
+	Vector3 result;
+
+	result.x = v1.x - v2.x;
+	result.y = v1.y - v2.y;
+	result.z = v1.z - v2.z;
+
+	return result;
+}
+
+float MyMathematics::Length(const Vector3& v1) { 
+	float result;
+
+	result = powf(v1.x, 2.0) + powf(v1.y, 2.0) + powf(v1.z, 2.0);
+
+	return sqrtf(result);
+}
+
+Vector3 MyMathematics::Multiply(const Vector3& v1, const float& a) { 
+	
+	Vector3 result;
+
+	result.x = v1.x * a;
+	result.y = v1.y * a;
+	result.z = v1.z * a;
+	
+	return result;
+}
+
+Vector3 MyMathematics::Normalize(const Vector3& v) { 
+	Vector3 result;
+
+	result.x = v.x / Length(v);
+	result.y = v.y / Length(v);
+	result.z = v.z / Length(v);
+
+	return result;
+}
+
 Vector3 MyMathematics::TransFormNormal(const Vector3& v, const Matrix4x4& m) { 
 	
 	Vector3 result{
