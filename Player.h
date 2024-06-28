@@ -31,6 +31,12 @@ class Player {
 
 	     Vector3 GetWorldPosition();
 
+		 void OnCollision();
+
+		 const std::list<PlayerBullet*>& GetBullets() const { return bullets_; }
+
+	     float GetRadius() const;
+
 		private:
 
 
@@ -49,5 +55,7 @@ class Player {
 			static inline const float kRotSpeed = 0.02f;
 
 	        std::list<PlayerBullet*> bullets_;
+
+			float radius_;
 
 };

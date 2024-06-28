@@ -18,7 +18,11 @@ class PlayerBullet {
 
 	 bool IsDead() const { return isDead_; } 
 
-public:
+	 void OnCollision();
+
+	 float GetRadius() const;
+
+ public:
 
 	WorldTransform worldTransform_;
 
@@ -35,5 +39,7 @@ public:
 	int32_t deathTime_ = kLifeTime;
 
 	bool isDead_ = false;
+
+	float radius_;
 
 };

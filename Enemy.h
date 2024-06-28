@@ -35,7 +35,15 @@ public:
 
 		 void SetPlayer(Player* player) { player_ = player; };
 
-private:
+		 Vector3 GetWorldPosition();
+
+		 void OnCollision();
+
+		 const std::list<EnemyBullet*>& GetBullets() const { return bullets_; }
+
+		 float GetRadius() const;
+
+	 private:
 
 	WorldTransform worldTransform_;
 
@@ -48,13 +56,14 @@ private:
 	 Phase phase_ = Phase::Approach;
 
 	 Input* input_ = nullptr;
-	 
-	 static const int32_t kLifeTime = 0;
 
-	  static const int32_t kFireInterval = 60;
+	 static const int32_t kFireInterval = 60;
+
 	 int32_t fireTimer_ = kFireInterval;
 
 	 std::list<EnemyBullet*> bullets_;
 
 	  Player* player_ = nullptr;
+
+	  float radius_;
 };

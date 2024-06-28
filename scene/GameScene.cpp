@@ -70,6 +70,8 @@ void GameScene::Update() {
 	}
     #endif
 
+	
+	CheckAllCollisions();
 }
 
 void GameScene::Draw() {
@@ -133,4 +135,65 @@ void GameScene::Draw() {
 	Sprite::PostDraw();
 
 #pragma endregion
+}
+
+void GameScene::CheckAllCollisions() {
+
+	Vector3 posA, posB, posC, posD;
+	const std::list<PlayerBullet*>& playerBullets = player_->GetBullets();
+	const std::list<EnemyBullet*>& enemyBullets = enemy_->GetBullets();
+	
+		posA = player_->GetWorldPosition();
+	for (EnemyBullet* bullet : enemyBullets) {
+		posB = bullet->worldTransform_.translation_;
+		float distanceSq = 
+			(posB.x - posA.x) * (posB.x - posA.x) + 
+			(posB.y - posA.y) * (posB.y - posA.y) + 
+			(posB.z - posA.z) * (posB.z - posA.z);
+
+		float radiusSum = player_->GetRadius() + bullet->GetRadius();
+
+		if (distanceSq <= radiusSum * radiusSum) {
+			
+			bullet->OnCollision();
+		}
+	}
+	posC = enemy_->GetWorldPosition();
+	for (PlayerBullet* bullet : playerBullets) {
+		posB = bullet->worldTransform_.translation_;
+		float distanceSq = 
+			(posB.x - posC.x) * (posB.x - posC.x) + 
+			(posB.y - posC.y) * (posB.y - posC.y) + 
+			(posB.z - posC.z) * (posB.z - posC.z);
+
+		float radiusSum = player_->GetRadius() + bullet->GetRadius();
+
+		if (distanceSq <= radiusSum * radiusSum) {
+
+			bullet->OnCollision();
+		}
+	}
+	for (EnemyBullet* enemyBullet : enemyBullets) {
+	
+		for (PlayerBullet* playerBullet : playerBullets) {
+			posB = enemyBullet->worldTransform_.translation_;
+			posD = playerBullet->worldTransform_.translation_;
+
+			float distanceSq = 
+				(posB.x - posD.x) * (posB.x - posD.x) + 
+				(posB.y - posD.y) * (posB.y - posD.y) + 
+				(posB.z - posD.z) * (posB.z - posD.z);
+
+			float radiusSum = enemyBullet->GetRadius() + playerBullet->GetRadius();
+
+			if (distanceSq <= radiusSum * radiusSum) {
+
+				playerBullet->OnCollision();
+				enemyBullet->OnCollision();
+			}
+		}
+
+	}
+
+
 }

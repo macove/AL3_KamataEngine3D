@@ -26,6 +26,7 @@ void Enemy::Initialize(Model* model, const Vector3& position, ViewProjection* vi
 
 	input_ = Input::GetInstance();
 
+	radius_ = 1.0f;
 }
 
 void Enemy::Update() {
@@ -40,19 +41,18 @@ void Enemy::Update() {
 	  Fire();
 	  fireTimer_ = kFireInterval; 
   }
+
   for (EnemyBullet* bullet : bullets_) {
 	  bullet->Update();
   }
-  /*bullets_.remove_if([](EnemyBullet* bullet) {
+  bullets_.remove_if([](EnemyBullet* bullet) {
 	  if (bullet->IsDead()) {
 
 		  delete bullet;
 		  return true;
 	  }
 	  return false;
-  });*/
-
-
+  });
 
    if (worldTransform_.translation_.z < -40.0f) {
 	  worldTransform_.translation_.z = 40.0f;
@@ -75,9 +75,6 @@ void Enemy::Fire() {
 
 		const float kBulletSpeed = 1.0f;
 
-		//Vector3 velocity(0, 0, kBulletSpeed);
-		//velocity = TransFormNormal(velocity, worldTransform_.matWorld_);
-
 		Vector3 enemyPos = worldTransform_.translation_;
 	    Vector3 playerPos = player_->GetWorldPosition();
 	    Vector3 direction = Subtract(playerPos,enemyPos);
@@ -89,13 +86,26 @@ void Enemy::Fire() {
 
 		bullets_.push_back(newBullet);
 	
-		
-
 }
 
 void Enemy::InitializeApproachPhase() {
 
-	fireTimer_ = kFireInterval;
+	fireTimer_ = kFireInterval; }
+
+Vector3 Enemy::GetWorldPosition() { 
+
+    Vector3 worldPos;
+
+	worldPos.x = worldTransform_.translation_.x;
+	worldPos.y = worldTransform_.translation_.y;
+	worldPos.z = worldTransform_.translation_.z;
+
+	return worldPos;
+
 }
+
+void Enemy::OnCollision() {}
+
+float Enemy::GetRadius() const { return radius_; }
 
 

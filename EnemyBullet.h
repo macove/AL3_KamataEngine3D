@@ -16,7 +16,11 @@ class EnemyBullet {
 
 	    void Draw();
 
-		
+		void OnCollision();
+
+		 bool IsDead() const { return isDead_; } 
+
+		float GetRadius() const;
 
 	public:
 
@@ -30,5 +34,12 @@ class EnemyBullet {
 
 	    Vector3 velocity_;
 
+		static const int32_t kLifeTime = 60 * 3;
+
+	    int32_t deathTime_ = kLifeTime;
+
+	    bool isDead_ = false;
+
+		float radius_;
 
 };

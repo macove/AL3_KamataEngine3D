@@ -8,15 +8,7 @@
 #include <math.h>
 
 
-
-
-
-
 using namespace MyMathematics;
-
-
-
-
 
 
 Player::~Player() { 
@@ -42,6 +34,8 @@ void Player::Initialize(Model* model, uint32_t textureHandle, ViewProjection* vi
 	input_ = Input::GetInstance();
 
 	 worldTransformBlock = &worldTransform_;
+
+	 radius_ = 1.0f;
 }
 
 void Player::Update() {
@@ -177,3 +171,8 @@ Vector3 Player::GetWorldPosition() {
 	return worldPos;
 
 }
+
+void Player::OnCollision() {}
+
+float Player::GetRadius() const { return radius_; }
+

@@ -19,7 +19,7 @@ void EnemyBullet::Initialize(Model* model, const Vector3& position, ViewProjecti
 
 	velocity_ = velocity;
 
-
+	radius_ = 1.0f;
 }
 
 void EnemyBullet::Update() {
@@ -28,7 +28,10 @@ void EnemyBullet::Update() {
 
 	worldTransform_.UpdateMatrix();
 
-	
+	if (--deathTime_ <= 0) {
+
+		isDead_ = true;
+	}
 
 }
 
@@ -38,5 +41,11 @@ void EnemyBullet::Draw() {
 
 
 }
+
+
+
+void EnemyBullet::OnCollision() { isDead_ = true; }
+
+float EnemyBullet::GetRadius() const { return radius_; }
 
 

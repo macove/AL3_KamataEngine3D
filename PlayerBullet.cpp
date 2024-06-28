@@ -20,6 +20,8 @@ void PlayerBullet::Initialize(Model* model, const Vector3& position, ViewProject
 	worldTransform_.translation_ = position;
 
 	 velocity_ = velocity;
+
+	 radius_ = 1.0f;
 }
 
 void PlayerBullet::Update() {
@@ -45,3 +47,7 @@ model_->Draw(worldTransform_, *viewProjection_, textureHandle_);
 
 
 }
+
+void PlayerBullet::OnCollision() { isDead_ = true; }
+
+float PlayerBullet::GetRadius() const { return radius_; }
