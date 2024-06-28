@@ -165,3 +165,16 @@ PlayerBullet* newBullet = new PlayerBullet();
 
 
 }
+
+Vector3 Player::GetWorldPosition() { 
+	
+	Vector3 worldPos;
+	
+	
+	
+	
+	
+
+
+	return worldPos;
+}
