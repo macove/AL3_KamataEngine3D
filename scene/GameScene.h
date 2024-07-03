@@ -11,7 +11,7 @@
 #include "DebugCamera.h"
 #include "Player.h"
 #include "Enemy.h"
-
+#include "Skydome.h"
 /// <summary>
 /// ゲームシーン
 /// </summary>
@@ -61,6 +61,11 @@ private: // メンバ変数
 
 	Enemy* enemy_ = nullptr;
 	Model* enemyModel_ = nullptr;
+
+
+	Skydome* skydome_ = nullptr;
+
+	Model* modelSkydome_ = nullptr;
 
 
 	/// </summary>
