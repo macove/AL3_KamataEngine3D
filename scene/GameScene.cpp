@@ -16,6 +16,7 @@ GameScene::~GameScene() {
 	delete enemyModel_;
 	delete debugCamera_;
 	delete modelSkydome_;
+	delete railCamera_;
 }
 
 void GameScene::Initialize() {
@@ -32,7 +33,9 @@ void GameScene::Initialize() {
 
 	playerModel_ = Model::Create();
 	ViewProjection_->Initialize();
-	player_->Initialize(playerModel_, playerTextureHandle, ViewProjection_);
+	Vector3 playerPosition(0,0,50.0f);
+	player_->Initialize(playerModel_, playerTextureHandle, ViewProjection_, playerPosition);
+	
 
 	enemy_ = new Enemy();
 	enemyModel_ = new Model();
@@ -56,6 +59,11 @@ void GameScene::Initialize() {
 
 	skydome_->Initialize(modelSkydome_, ViewProjection_);
 
+	railCamera_ = new RailCamera();
+	railCamera_->Initialize();
+	
+	player_->SetParent(&railCamera_->GetWorldTransform());
+	
 }
 
 void GameScene::Update() {
@@ -63,6 +71,7 @@ void GameScene::Update() {
 	player_->Update();
 	enemy_->Update();
 	debugCamera_->Update();
+	railCamera_->Update(); 
 
 	#ifdef _DEBUG
 	if (input_->TriggerKey(DIK_Q)) {
@@ -75,11 +84,15 @@ void GameScene::Update() {
 		ViewProjection_->TransferMatrix();
 	} else {
 		ViewProjection_->UpdateMatrix();
+		ViewProjection_->matView = railCamera_->GetViewProjection().matView;
+		ViewProjection_->matProjection = railCamera_->GetViewProjection().matProjection;
+		ViewProjection_->TransferMatrix();
 	}
+	
     #endif
 
 	skydome_->Update();
-	
+
 	CheckAllCollisions();
 }
 
@@ -150,7 +163,7 @@ void GameScene::Draw() {
 
 void GameScene::CheckAllCollisions() {
 
-	Vector3 posA, posB, posC, posD;
+	/*Vector3 posA, posB, posC, posD;
 	const std::list<PlayerBullet*>& playerBullets = player_->GetBullets();
 	const std::list<EnemyBullet*>& enemyBullets = enemy_->GetBullets();
 	
@@ -204,7 +217,7 @@ void GameScene::CheckAllCollisions() {
 			}
 		}
 
-	}
+	}*/
 
 
 }

@@ -43,6 +43,8 @@ public:
 
 		 float GetRadius() const;
 
+		
+
 	 private:
 
 	WorldTransform worldTransform_;

@@ -22,6 +22,8 @@ class PlayerBullet {
 
 	 float GetRadius() const;
 
+	  void SetParent(const WorldTransform* parent);
+
  public:
 
 	WorldTransform worldTransform_;

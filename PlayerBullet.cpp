@@ -51,3 +51,9 @@ model_->Draw(worldTransform_, *viewProjection_, textureHandle_);
 void PlayerBullet::OnCollision() { isDead_ = true; }
 
 float PlayerBullet::GetRadius() const { return radius_; }
+
+void PlayerBullet::SetParent(const WorldTransform* parent) {
+
+worldTransform_.parent_ = parent; 
+
+}

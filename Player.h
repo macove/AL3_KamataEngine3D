@@ -19,7 +19,7 @@ class Player {
 
 		 ~Player();
 
-		 void Initialize(Model* model, uint32_t textureHandle, ViewProjection* viewProjection);
+		 void Initialize(Model* model, uint32_t textureHandle, ViewProjection* viewProjection, const Vector3& position);
 
 		 void Update();
 
@@ -36,6 +36,8 @@ class Player {
 		 const std::list<PlayerBullet*>& GetBullets() const { return bullets_; }
 
 	     float GetRadius() const;
+
+		 void SetParent(const WorldTransform* parent);
 
 		private:
 
@@ -57,5 +59,6 @@ class Player {
 	        std::list<PlayerBullet*> bullets_;
 
 			float radius_;
+
 
 };
