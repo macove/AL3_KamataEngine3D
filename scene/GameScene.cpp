@@ -15,6 +15,7 @@ GameScene::~GameScene() {
 	delete enemy_;
 	delete enemyModel_;
 	delete debugCamera_;
+	delete skydome_;
 	delete modelSkydome_;
 	delete railCamera_;
 }
@@ -33,8 +34,7 @@ void GameScene::Initialize() {
 
 	playerModel_ = Model::Create();
 	ViewProjection_->Initialize();
-	Vector3 playerPosition(0,0,50.0f);
-	player_->Initialize(playerModel_, playerTextureHandle, ViewProjection_, playerPosition);
+	
 	
 
 	enemy_ = new Enemy();
@@ -63,6 +63,9 @@ void GameScene::Initialize() {
 	railCamera_->Initialize();
 	
 	player_->SetParent(&railCamera_->GetWorldTransform());
+
+	Vector3 playerPosition(0, 0, 50.0f);
+	player_->Initialize(playerModel_, playerTextureHandle, ViewProjection_, playerPosition);
 	
 }
 
@@ -70,8 +73,8 @@ void GameScene::Update() {
 
 	player_->Update();
 	enemy_->Update();
-	debugCamera_->Update();
 	railCamera_->Update(); 
+	//debugCamera_->Update();
 
 	#ifdef _DEBUG
 	if (input_->TriggerKey(DIK_Q)) {
@@ -131,7 +134,7 @@ void GameScene::Draw() {
 
 	skydome_->Draw();
 
-	// model_->Draw(worldTransform_, viewProjection_, textureHandle_);
+	//model_->Draw(worldTransform_, viewProjection_, textureHandle_);
 	//model_->Draw(worldTransform_, debugCamera_->GetViewProjection(), textureHandle_);
 
 	// 3Dオブジェクト描画後処理
@@ -163,13 +166,14 @@ void GameScene::Draw() {
 
 void GameScene::CheckAllCollisions() {
 
-	/*Vector3 posA, posB, posC, posD;
+	Vector3 posA, posB, posC, posD;
 	const std::list<PlayerBullet*>& playerBullets = player_->GetBullets();
 	const std::list<EnemyBullet*>& enemyBullets = enemy_->GetBullets();
 	
-		posA = player_->GetWorldPosition();
+	posA = player_->GetWorldPosition();
+
 	for (EnemyBullet* bullet : enemyBullets) {
-		posB = bullet->worldTransform_.translation_;
+		posB = bullet->GetWorldPosition();
 		float distanceSq = 
 			(posB.x - posA.x) * (posB.x - posA.x) + 
 			(posB.y - posA.y) * (posB.y - posA.y) + 
@@ -182,9 +186,11 @@ void GameScene::CheckAllCollisions() {
 			bullet->OnCollision();
 		}
 	}
+
 	posC = enemy_->GetWorldPosition();
+
 	for (PlayerBullet* bullet : playerBullets) {
-		posB = bullet->worldTransform_.translation_;
+		posB = bullet->GetWorldPosition();
 		float distanceSq = 
 			(posB.x - posC.x) * (posB.x - posC.x) + 
 			(posB.y - posC.y) * (posB.y - posC.y) + 
@@ -197,11 +203,12 @@ void GameScene::CheckAllCollisions() {
 			bullet->OnCollision();
 		}
 	}
+
 	for (EnemyBullet* enemyBullet : enemyBullets) {
 	
 		for (PlayerBullet* playerBullet : playerBullets) {
-			posB = enemyBullet->worldTransform_.translation_;
-			posD = playerBullet->worldTransform_.translation_;
+			posB = enemyBullet->GetWorldPosition();
+			posD = playerBullet->GetWorldPosition();
 
 			float distanceSq = 
 				(posB.x - posD.x) * (posB.x - posD.x) + 
@@ -217,7 +224,7 @@ void GameScene::CheckAllCollisions() {
 			}
 		}
 
-	}*/
+	}
 
 
 }

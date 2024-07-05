@@ -22,6 +22,8 @@ class EnemyBullet {
 
 		float GetRadius() const;
 
+		Vector3 GetWorldPosition();
+
 	public:
 
 		WorldTransform worldTransform_;

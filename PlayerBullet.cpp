@@ -57,3 +57,5 @@ void PlayerBullet::SetParent(const WorldTransform* parent) {
 worldTransform_.parent_ = parent; 
 
 }
+
+Vector3 PlayerBullet::GetWorldPosition() { return Transform(Vector3{0, 0, 0}, worldTransform_.matWorld_); }

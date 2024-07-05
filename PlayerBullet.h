@@ -12,17 +12,19 @@ class PlayerBullet {
 
 	void Initialize(Model* model, const Vector3& position, ViewProjection* viewProjection, const Vector3& velocity );
 
-	 void Update();
+	void Update();
 
-	 void Draw();
+	void Draw();
 
-	 bool IsDead() const { return isDead_; } 
+	bool IsDead() const { return isDead_; } 
 
-	 void OnCollision();
+	void OnCollision();
 
-	 float GetRadius() const;
+	float GetRadius() const;
 
-	  void SetParent(const WorldTransform* parent);
+	void SetParent(const WorldTransform* parent);
+
+	Vector3 GetWorldPosition();
 
  public:
 

@@ -48,4 +48,6 @@ void EnemyBullet::OnCollision() { isDead_ = true; }
 
 float EnemyBullet::GetRadius() const { return radius_; }
 
+Vector3 EnemyBullet::GetWorldPosition() { return Transform(Vector3{0, 0, 0}, worldTransform_.matWorld_); }
+
 

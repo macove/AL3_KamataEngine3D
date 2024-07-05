@@ -97,20 +97,21 @@ void Player::Update() {
 		return false;
 	});
 
-	//ImGui::Begin("Player");
-	//ImGui::PushItemWidth(100); 
-	//ImGui::SliderFloat("X", &worldTransform_.translation_.x, -35.0f, 35.0f);
-	//ImGui::SameLine();
-	//ImGui::SliderFloat("Y", &worldTransform_.translation_.y, -18.0f, 18.0f);
-	//ImGui::SameLine();
-	//ImGui::SliderFloat("Z", &worldTransform_.translation_.z, -10.0f, 10.0f);
-	//ImGui::End();
+	ImGui::Begin("Player");
+	ImGui::PushItemWidth(100); 
+	ImGui::SliderFloat("X", &worldTransform_.translation_.x, -35.0f, 35.0f);
+	ImGui::SameLine();
+	ImGui::SliderFloat("Y", &worldTransform_.translation_.y, -18.0f, 18.0f);
+	ImGui::SameLine();
+	ImGui::SliderFloat("Z", &worldTransform_.translation_.z, -10.0f, 10.0f);
+	ImGui::End();
 
 	worldTransform_.matWorld_ = MakeAffineMatrix(worldTransform_.scale_, worldTransform_.rotation_, worldTransform_.translation_);
 
 	worldTransform_.UpdateMatrix();
 
 	Attack();
+
 }
 
 void Player::Draw() {
@@ -151,9 +152,11 @@ if (input_->TriggerKey(DIK_SPACE)) {
 	Vector3 velocity(0, 0, kBulletSpeed);
 	velocity = TransFormNormal(velocity, worldTransform_.matWorld_);
 
+
+
 PlayerBullet* newBullet = new PlayerBullet();
-	newBullet->Initialize(model_, worldTransform_.translation_, viewProjection_,velocity);
     newBullet->SetParent(worldTransform_.parent_);
+	newBullet->Initialize(model_, worldTransform_.translation_, viewProjection_,velocity);
 	 bullets_.push_back(newBullet);
 
 }
@@ -165,7 +168,16 @@ PlayerBullet* newBullet = new PlayerBullet();
 
 Vector3 Player::GetWorldPosition() { 
 
-	return Transform(Vector3{0, 0, 0}, worldTransform_.matWorld_); 
+	Vector3 worldPos;
+
+	worldPos.x = worldTransform_.translation_.x;
+	worldPos.y = worldTransform_.translation_.y;
+	worldPos.z = worldTransform_.translation_.z-50.0f;
+
+	return worldPos;
+
+	//return Transform(Vector3{0, 0, 0}, worldTransform_.matWorld_); 
+
 }
 
 void Player::OnCollision() {}
