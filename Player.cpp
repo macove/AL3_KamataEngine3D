@@ -35,7 +35,7 @@ void Player::Initialize(Model* model, uint32_t textureHandle, ViewProjection* vi
 
 	input_ = Input::GetInstance();
 
-	 //worldTransformBlock = &worldTransform_;
+	 worldTransformBlock = &worldTransform_;
 
 	 radius_ = 1.0f;
 
@@ -45,13 +45,13 @@ void Player::Initialize(Model* model, uint32_t textureHandle, ViewProjection* vi
 void Player::Update() {
 
 
-	//worldTransformBlock->UpdateMatrix();
+	worldTransformBlock->UpdateMatrix();
 
-	//worldTransform_.TransferMatrix(); 
+	worldTransform_.TransferMatrix(); 
 
 	//worldTransform_.matWorld_ = MakeAffineMatrix(worldTransform_.scale_, worldTransform_.rotation_, worldTransform_.translation_);
 
-	worldTransform_.UpdateMatrix();
+	
 
 	Vector3 move = {0, 0, 0};
 
@@ -75,17 +75,17 @@ void Player::Update() {
 
 	worldTransform_.translation_ = Add(worldTransform_.translation_, move);
 
-	//const float kMoveLimitX = 35.0f;
-	//const float kMoveLimitY = 18.0f;
-	//const float kMoveLimitZ = 50.0f;
+	const float kMoveLimitX = 35.0f;
+	const float kMoveLimitY = 18.0f;
+	const float kMoveLimitZ = 50.0f;
 
-	//worldTransform_.translation_.x = std::max(worldTransform_.translation_.x, -kMoveLimitX);
-	//worldTransform_.translation_.x = std::min(worldTransform_.translation_.x, +kMoveLimitX);
-	//worldTransform_.translation_.y = std::max(worldTransform_.translation_.y, -kMoveLimitY);
-	//worldTransform_.translation_.y = std::min(worldTransform_.translation_.y, +kMoveLimitY);
-	//worldTransform_.translation_.z = std::max(worldTransform_.translation_.z, -kMoveLimitZ);
-	//worldTransform_.translation_.z = std::min(worldTransform_.translation_.z, +kMoveLimitZ);
-
+	worldTransform_.translation_.x = std::max(worldTransform_.translation_.x, -kMoveLimitX);
+	worldTransform_.translation_.x = std::min(worldTransform_.translation_.x, +kMoveLimitX);
+	worldTransform_.translation_.y = std::max(worldTransform_.translation_.y, -kMoveLimitY);
+	worldTransform_.translation_.y = std::min(worldTransform_.translation_.y, +kMoveLimitY);
+	worldTransform_.translation_.z = std::max(worldTransform_.translation_.z, -kMoveLimitZ);
+	worldTransform_.translation_.z = std::min(worldTransform_.translation_.z, +kMoveLimitZ);
+	Attack();
 	Rotate();
 	
 
@@ -110,9 +110,9 @@ void Player::Update() {
 	ImGui::SliderFloat("Z", &worldTransform_.translation_.z, -10.0f, 10.0f);
 	ImGui::End();
 
-	
+	worldTransform_.UpdateMatrix();
 
-	Attack();
+	
 
 }
 
