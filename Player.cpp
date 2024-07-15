@@ -85,6 +85,7 @@ void Player::Update() {
 	worldTransform_.translation_.y = std::min(worldTransform_.translation_.y, +kMoveLimitY);
 	worldTransform_.translation_.z = std::max(worldTransform_.translation_.z, -kMoveLimitZ);
 	worldTransform_.translation_.z = std::min(worldTransform_.translation_.z, +kMoveLimitZ);
+
 	Attack();
 	Rotate();
 	

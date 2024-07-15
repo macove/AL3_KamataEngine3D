@@ -1,10 +1,11 @@
+
 #include "GameScene.h"
 #include "TextureManager.h"
 #include <cassert>
 #include"ImGuiManager.h"
 #include"PrimitiveDrawer.h"
 #include"AxisIndicator.h"
-
+#include <fstream>
 GameScene::GameScene() {}
 
 GameScene::~GameScene() {
@@ -18,6 +19,9 @@ GameScene::~GameScene() {
 	delete skydome_;
 	delete modelSkydome_;
 	delete railCamera_;
+	for (EnemyBullet* bullet : enemyBullets_) {
+		delete bullet;
+	}
 }
 
 void GameScene::Initialize() {
@@ -42,8 +46,9 @@ void GameScene::Initialize() {
 	enemyModel_ = Model::Create();
 
 
-	Vector3 enemyPosition = {10.0f, 1.0f, 5.0f};
+	Vector3 enemyPosition = {10.0f, 1.0f, 45.0f};
 	enemy_->Initialize(enemyModel_, enemyPosition, ViewProjection_);
+	enemy_->SetGameScene(this);
 
 	enemy_->SetPlayer(player_);
 
@@ -96,6 +101,17 @@ void GameScene::Update() {
 
 	skydome_->Update();
 
+	  for (EnemyBullet* bullet : enemyBullets_) {
+		bullet->Update();
+	}
+	enemyBullets_.remove_if([](EnemyBullet* bullet) {
+		if (bullet->IsDead()) {
+			delete bullet;
+			return true;
+		}
+		return false;
+	});
+
 	CheckAllCollisions();
 }
 
@@ -131,6 +147,11 @@ void GameScene::Draw() {
 	player_->Draw();
 
 	enemy_->Draw();
+
+	 for (EnemyBullet* bullet : enemyBullets_) {
+		bullet->Draw();
+	}
+
 
 	skydome_->Draw();
 
@@ -196,11 +217,14 @@ void GameScene::CheckAllCollisions() {
 			(posB.y - posC.y) * (posB.y - posC.y) + 
 			(posB.z - posC.z) * (posB.z - posC.z);
 
-		float radiusSum = player_->GetRadius() + bullet->GetRadius();
+		float radiusSum = enemy_->GetRadius() + bullet->GetRadius();
 
 		if (distanceSq <= radiusSum * radiusSum) {
 
 			bullet->OnCollision();
+			enemy_->OnCollision();
+
+			
 		}
 	}
 
@@ -227,4 +251,67 @@ void GameScene::CheckAllCollisions() {
 	}
 
 
+
 }
+
+void GameScene::AddEnemyBullet(EnemyBullet* enemyBullet) {
+
+	 enemyBullets_.push_back(enemyBullet);
+
+}
+
+//void GameScene::LoadEnemyPopData() {
+//
+//    std::ifstream file;
+//	file.open("enemyPop.csv");
+//    assert(file.is_open());
+//
+//    enemyPopCommands << file.rdbuf();
+//
+//    file.close();
+//
+//}
+
+//void GameScene::UpdateEnemyPopCommands() {
+//
+//std::string line;
+//
+//while (getline(enemyPopCommands, line)) {
+//
+//std::istringstream line_stream(line);
+//
+//std::string word;
+//
+//getline(line_stream, word, ',');
+//
+//if (word.find("//") == 0) {
+//	continue;
+//}
+//if (word.find("POP") == 0) {
+//	getline(line_stream, word, ',');
+//	float x = (float)std::atof(word.c_str());
+//
+//	getline(line_stream, word, ',');
+//	float y = (float)std::atof(word.c_str());
+//
+//	getline(line_stream, word, ',');
+//	float z = (float)std::atof(word.c_str());
+//
+//	enemy_->(Vector3(x, y, z));
+//} else if (word.find("WAIT") == 0) {
+//
+//getline(line_stream, word, ',');
+//
+//int32_t waitTime = atoi(word.c_str());
+//
+//
+//
+//break;
+//
+//}
+//
+//
+//}
+//
+//}
+//

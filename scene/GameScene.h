@@ -13,6 +13,7 @@
 #include "Enemy.h"
 #include "Skydome.h"
 #include "RailCamera.h"
+#include <sstream>
 /// <summary>
 /// ゲームシーン
 /// </summary>
@@ -46,6 +47,12 @@ public: // メンバ関数
 
 	void CheckAllCollisions();
 
+	void AddEnemyBullet(EnemyBullet* enemyBullet);
+
+	//void LoadEnemyPopData();
+
+	//void UpdateEnemyPopCommands();
+
 private: // メンバ変数
 	DirectXCommon* dxCommon_ = nullptr;
 	Input* input_ = nullptr;
@@ -68,7 +75,13 @@ private: // メンバ変数
 
 	Model* modelSkydome_ = nullptr;
 
-	 RailCamera* railCamera_ = nullptr;
+	RailCamera* railCamera_ = nullptr;
 
-	/// </summary>
+    //std::list<Enemy*> enemies_;
+    std::list<EnemyBullet*> enemyBullets_;
+
+	//std::stringstream enemyPopCommands;
+	
+
+
 };
