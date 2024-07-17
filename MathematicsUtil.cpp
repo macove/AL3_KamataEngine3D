@@ -173,6 +173,15 @@ Matrix4x4 MyMathematics::MakeAffineMatrix(const Vector3& scale, const Vector3& r
 	return result;
 }
 
+Matrix4x4 MyMathematics::MakeViewportMatrix(float left, float top, float width, float height, float minDepth, float maxDepth) { 
+	
+Matrix4x4 result;
+
+	result = {width / 2, 0.0f, 0.0f, 0.0f, 0.0f, -(height / 2), 0.0f, 0.0f, 0.0f, 0.0f, maxDepth - minDepth, 0.0f, left + (width / 2), top + (height / 2), minDepth, 1.0f};
+
+	return result;
+}
+
 Matrix4x4 MyMathematics::Inverse(const Matrix4x4& m) {
 	Matrix4x4 result;
 	float A;

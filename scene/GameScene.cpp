@@ -9,11 +9,10 @@
 GameScene::GameScene() {}
 
 GameScene::~GameScene() {
-	//delete sprite_;
+	
 	delete player_;
 	delete playerModel_;
 	delete ViewProjection_;
-	delete enemy_;
 	delete enemyModel_;
 	delete debugCamera_;
 	delete skydome_;
@@ -44,17 +43,10 @@ void GameScene::Initialize() {
 	
 	
 
-	enemy_ = new Enemy();
+	
 	enemyModel_ = new Model();
 	enemyModel_ = Model::Create();
-
-
-	Vector3 enemyPosition = {10.0f, 1.0f, 45.0f};
-	enemy_->Initialize(enemyModel_, enemyPosition, ViewProjection_);
-	enemy_->SetGameScene(this);
-
-	enemy_->SetPlayer(player_);
-
+	LoadEnemyPopData();
 	debugCamera_ = new DebugCamera(1920, 1080);
 
 	AxisIndicator::GetInstance()->SetVisible(true);
@@ -74,15 +66,13 @@ void GameScene::Initialize() {
 
 	Vector3 playerPosition(0, 0, 50.0f);
 	player_->Initialize(playerModel_, playerTextureHandle, ViewProjection_, playerPosition);
-	LoadEnemyPopData();
+	
 }
 
 void GameScene::Update() {
 
 	player_->Update();
-	enemy_->Update();
 	railCamera_->Update(); 
-	//debugCamera_->Update();
 
 	#ifdef _DEBUG
 	if (input_->TriggerKey(DIK_Q)) {
@@ -103,6 +93,7 @@ void GameScene::Update() {
     #endif
 
 	skydome_->Update();
+	UpdateEnemyPopCommands();
 	for (Enemy* enemy : enemies_) {
 		enemy->Update();
 	}
@@ -117,7 +108,7 @@ void GameScene::Update() {
 		return false;
 	});
 	CheckAllCollisions();
-	UpdateEnemyPopCommands();
+	
 }
 
 void GameScene::Draw() {
@@ -151,7 +142,7 @@ void GameScene::Draw() {
 
 	player_->Draw();
 
-	enemy_->Draw();
+	//enemy_->Draw();
 
 	  for (Enemy* enemy : enemies_) {
 		enemy->Draw();
@@ -187,7 +178,7 @@ void GameScene::Draw() {
 
 void GameScene::CheckAllCollisions() {
 
-	Vector3 posA, posB, posC, posD;
+	Vector3 posA, posB,posC, posD;
 	const std::list<PlayerBullet*>& playerBullets = player_->GetBullets();
 	//const std::list<EnemyBullet*>& enemyBullets = enemy_->GetBullets();
 	
@@ -208,22 +199,18 @@ void GameScene::CheckAllCollisions() {
 		}
 	}
 
-	posC = enemy_->GetWorldPosition();
+	 for (Enemy* enemy : enemies_) {
+		posC = enemy->GetWorldPosition();
+		for (PlayerBullet* bullet : playerBullets) {
+			posB = bullet->GetWorldPosition();
+			float distanceSq = (posB.x - posC.x) * (posB.x - posC.x) + (posB.y - posC.y) * (posB.y - posC.y) + (posB.z - posC.z) * (posB.z - posC.z);
 
-	for (PlayerBullet* bullet : playerBullets) {
-		posB = bullet->GetWorldPosition();
-		float distanceSq = 
-			(posB.x - posC.x) * (posB.x - posC.x) + 
-			(posB.y - posC.y) * (posB.y - posC.y) + 
-			(posB.z - posC.z) * (posB.z - posC.z);
-	
-		float radiusSum = enemy_->GetRadius() + bullet->GetRadius();
-	
-		if (distanceSq <= radiusSum * radiusSum) {
-	
-			bullet->OnCollision();
-			enemy_->OnCollision();
-			
+			float radiusSum = enemy->GetRadius() + bullet->GetRadius();
+
+			if (distanceSq <= radiusSum * radiusSum) {
+				bullet->OnCollision();
+				enemy->OnCollision();
+			}
 		}
 	}
 	

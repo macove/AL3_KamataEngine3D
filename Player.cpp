@@ -6,7 +6,7 @@
 #include "TextureManager.h"
 #include <algorithm>
 #include <math.h>
-
+#include <WinApp.h>
 
 using namespace MyMathematics;
 
@@ -17,6 +17,8 @@ Player::~Player() {
 		delete bullet;
 	}
 	
+	 delete sprite2DReticle_;
+
 }
 
 void Player::Initialize(Model* model, uint32_t textureHandle, ViewProjection* viewProjection, const Vector3& position) {
@@ -39,7 +41,10 @@ void Player::Initialize(Model* model, uint32_t textureHandle, ViewProjection* vi
 
 	 radius_ = 1.0f;
 
-	 
+	 worldTransform3DReticle_.Initialize();
+
+	 uint32_t textureReticle = TextureManager::Load("./Resources/reticle.png");
+	 sprite2DReticle_ = Sprite::Create(textureReticle, Vector2(0.0f, 0.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f), Vector2(0.5f, 0.5f));
 }
 
 void Player::Update() {
@@ -113,18 +118,30 @@ void Player::Update() {
 
 	worldTransform_.UpdateMatrix();
 
-	
+	const float kDistancePlayerTo3DReticle = 50.0f;
+	Vector3 offset = {0, 0, 1.0f}; 
+	offset = Multiply( Normalize(offset),kDistancePlayerTo3DReticle);
+	worldTransform3DReticle_.translation_ = Add(worldTransform_.translation_, offset);
+	worldTransform3DReticle_.UpdateMatrix();
+
+	 Vector3 positionReticle = worldTransform3DReticle_.translation_;
+    Matrix4x4 matViewport = MakeViewportMatrix(0, 0, WinApp::kWindowWidth, WinApp::kWindowHeight, 0, 1);
+	//Matrix4x4 matViewProjectionViewport = viewProjection_->matView;
+	viewProjection_->matView;
+    positionReticle = Transform(positionReticle, matViewProjectionViewport);
+
+	 sprite2DReticle_->SetPosition(Vector2(positionReticle.x, positionReticle.y));
 
 }
 
 void Player::Draw() {
 
 	model_->Draw(worldTransform_, *viewProjection_, textureHandle_);
-
+	model_->Draw(worldTransform3DReticle_, *viewProjection_, textureHandle_);
 	for (PlayerBullet* bullet : bullets_) {
 		bullet->Draw();
 	}
-
+	sprite2DReticle_->Draw();
 }
 
 void Player::Rotate() {
@@ -151,9 +168,10 @@ void Player::Attack() {
 
 if (input_->TriggerKey(DIK_SPACE)) {
 
+	Vector3 bulletDirection = Subtract(worldTransform3DReticle_.translation_, worldTransform_.translation_);
+	bulletDirection = Normalize(bulletDirection);
 	const float kBulletSpeed = 1.0f;
-	Vector3 velocity(0, 0, kBulletSpeed);
-	velocity = TransFormNormal(velocity, worldTransform_.matWorld_);
+	Vector3 velocity = Multiply(bulletDirection,kBulletSpeed);
 
 
 
@@ -190,6 +208,12 @@ float Player::GetRadius() const { return radius_; }
 void Player::SetParent(const WorldTransform* parent) {
 
 worldTransform_.parent_ = parent;
+
+}
+
+void Player::DrawUI() {
+
+
 
 }
 

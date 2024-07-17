@@ -69,7 +69,7 @@ private: // メンバ変数
 	
 	DebugCamera* debugCamera_ = nullptr;
 
-	Enemy* enemy_ = nullptr;
+	
 	Model* enemyModel_ = nullptr;
 
 
@@ -79,7 +79,6 @@ private: // メンバ変数
 
 	RailCamera* railCamera_ = nullptr;
 
-    //std::list<Enemy*> enemies_;
     std::list<EnemyBullet*> enemyBullets_;
 
 	std::stringstream enemyPopCommands;

@@ -5,11 +5,15 @@
 #include "imgui.h"
 #include "PlayerBullet.h"
 #include <list>
+#include <Sprite.h>
 
 #pragma once
-
-
-
+//
+//
+//struct ViewProject {
+//	Matrix4x4 matView;
+//	Matrix4x4 matProjection;
+//};
 
 
 class Player {
@@ -39,6 +43,8 @@ class Player {
 
 		 void SetParent(const WorldTransform* parent);
 
+		 void DrawUI();
+
 		private:
 
 
@@ -60,5 +66,9 @@ class Player {
 
 			float radius_;
 
+			WorldTransform worldTransform3DReticle_;
 
+			Sprite* sprite2DReticle_ = nullptr;
+
+			//ViewProject* viewProject_;
 };

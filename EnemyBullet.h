@@ -44,4 +44,5 @@ class EnemyBullet {
 
 		float radius_;
 
+
 };
