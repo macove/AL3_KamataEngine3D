@@ -6,6 +6,7 @@
 #include "PlayerBullet.h"
 #include <list>
 #include <Sprite.h>
+#include <ViewProjection.h>
 
 #pragma once
 //

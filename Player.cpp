@@ -118,7 +118,7 @@ void Player::Update() {
 
 	worldTransform_.UpdateMatrix();
 
-	const float kDistancePlayerTo3DReticle = 50.0f;
+	const float kDistancePlayerTo3DReticle = 20.0f;
 	Vector3 offset = {0, 0, 1.0f}; 
 	offset = Multiply( Normalize(offset),kDistancePlayerTo3DReticle);
 	worldTransform3DReticle_.translation_ = Add(worldTransform_.translation_, offset);
@@ -126,8 +126,8 @@ void Player::Update() {
 
 	 Vector3 positionReticle = worldTransform3DReticle_.translation_;
     Matrix4x4 matViewport = MakeViewportMatrix(0, 0, WinApp::kWindowWidth, WinApp::kWindowHeight, 0, 1);
-	//Matrix4x4 matViewProjectionViewport = viewProjection_->matView;
-	viewProjection_->matView;
+	 Matrix4x4 matViewProjectionViewport = Multiply(Multiply(viewProjection_->matView, viewProjection_->matProjection), matViewport);
+	
     positionReticle = Transform(positionReticle, matViewProjectionViewport);
 
 	 sprite2DReticle_->SetPosition(Vector2(positionReticle.x, positionReticle.y));
@@ -137,11 +137,11 @@ void Player::Update() {
 void Player::Draw() {
 
 	model_->Draw(worldTransform_, *viewProjection_, textureHandle_);
-	model_->Draw(worldTransform3DReticle_, *viewProjection_, textureHandle_);
+	//model_->Draw(worldTransform3DReticle_, *viewProjection_, textureHandle_);
 	for (PlayerBullet* bullet : bullets_) {
 		bullet->Draw();
 	}
-	sprite2DReticle_->Draw();
+	
 }
 
 void Player::Rotate() {
@@ -213,7 +213,7 @@ worldTransform_.parent_ = parent;
 
 void Player::DrawUI() {
 
-
+	 sprite2DReticle_->Draw();
 
 }
 
