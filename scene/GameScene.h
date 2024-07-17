@@ -49,9 +49,11 @@ public: // メンバ関数
 
 	void AddEnemyBullet(EnemyBullet* enemyBullet);
 
-	//void LoadEnemyPopData();
+	void LoadEnemyPopData();
 
-	//void UpdateEnemyPopCommands();
+	void UpdateEnemyPopCommands();
+
+	void SpawnEnemy(const Vector3& position);
 
 private: // メンバ変数
 	DirectXCommon* dxCommon_ = nullptr;
@@ -80,8 +82,11 @@ private: // メンバ変数
     //std::list<Enemy*> enemies_;
     std::list<EnemyBullet*> enemyBullets_;
 
-	//std::stringstream enemyPopCommands;
+	std::stringstream enemyPopCommands;
 	
+	std::list<Enemy*> enemies_;
 
+	bool isWaiting_ = false; 
+    int32_t waitTimer_ = 0;
 
 };

@@ -175,7 +175,7 @@ Vector3 Player::GetWorldPosition() {
 
 	worldPos.x = worldTransform_.translation_.x;
 	worldPos.y = worldTransform_.translation_.y;
-	worldPos.z = worldTransform_.translation_.z-50.0f;
+	worldPos.z = worldTransform_.translation_.z -50.0f;
 
 	return worldPos;
 

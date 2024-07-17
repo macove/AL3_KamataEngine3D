@@ -35,10 +35,12 @@ void Enemy::Update() {
 	const float kEnemySpeed = 0.1f;
 
 	worldTransform_.translation_.z -= kEnemySpeed;
-
+	if (!isDead_) {
 	if (--fireTimer_ <= 0) {
 		Fire();
 		fireTimer_ = kFireInterval;
+	}
+	
 	}
 
 	//for (EnemyBullet* bullet : bullets_) {
@@ -60,7 +62,10 @@ void Enemy::Update() {
 
 void Enemy::Draw() {
 
+	if (!isDead_) {
+	
 	model_->Draw(worldTransform_, *viewProjection_, textureHandle_);
+	}
 
 	//for (EnemyBullet* bullet : bullets_) {
 	//	bullet->Draw();
@@ -87,6 +92,6 @@ void Enemy::InitializeApproachPhase() { fireTimer_ = kFireInterval; }
 
 Vector3 Enemy::GetWorldPosition() { return Transform(Vector3{0, 0, 0}, worldTransform_.matWorld_); }
 
-void Enemy::OnCollision() {}
+void Enemy::OnCollision() { isDead_ = true; }
 
 float Enemy::GetRadius() const { return radius_; }

@@ -37,7 +37,7 @@ public:
 
 	void OnCollision();
 
-	const std::list<EnemyBullet*>& GetBullets() const { return bullets_; }
+	//const std::list<EnemyBullet*>& GetBullets() const { return bullets_; }
 
 	float GetRadius() const;
 
@@ -68,4 +68,5 @@ private:
 
 	GameScene* gameScene_ = nullptr;
 
+	 bool isDead_ = false;
 };

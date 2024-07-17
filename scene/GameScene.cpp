@@ -22,6 +22,9 @@ GameScene::~GameScene() {
 	for (EnemyBullet* bullet : enemyBullets_) {
 		delete bullet;
 	}
+	for (Enemy* enemy : enemies_) {
+		delete enemy;
+	}
 }
 
 void GameScene::Initialize() {
@@ -71,7 +74,7 @@ void GameScene::Initialize() {
 
 	Vector3 playerPosition(0, 0, 50.0f);
 	player_->Initialize(playerModel_, playerTextureHandle, ViewProjection_, playerPosition);
-	
+	LoadEnemyPopData();
 }
 
 void GameScene::Update() {
@@ -100,8 +103,10 @@ void GameScene::Update() {
     #endif
 
 	skydome_->Update();
-
-	  for (EnemyBullet* bullet : enemyBullets_) {
+	for (Enemy* enemy : enemies_) {
+		enemy->Update();
+	}
+	 for (EnemyBullet* bullet : enemyBullets_) {
 		bullet->Update();
 	}
 	enemyBullets_.remove_if([](EnemyBullet* bullet) {
@@ -111,8 +116,8 @@ void GameScene::Update() {
 		}
 		return false;
 	});
-
 	CheckAllCollisions();
+	UpdateEnemyPopCommands();
 }
 
 void GameScene::Draw() {
@@ -148,6 +153,10 @@ void GameScene::Draw() {
 
 	enemy_->Draw();
 
+	  for (Enemy* enemy : enemies_) {
+		enemy->Draw();
+	}
+
 	 for (EnemyBullet* bullet : enemyBullets_) {
 		bullet->Draw();
 	}
@@ -155,19 +164,10 @@ void GameScene::Draw() {
 
 	skydome_->Draw();
 
-	//model_->Draw(worldTransform_, viewProjection_, textureHandle_);
-	//model_->Draw(worldTransform_, debugCamera_->GetViewProjection(), textureHandle_);
 
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
 #pragma endregion
-
-	
-
-	//PrimitiveDrawer::GetInstance()->DrawLine3d({0, 0, 0}, {0, 10, 0}, {1.0f, 0.0f, 0.0f, 1.0f});
-	//PrimitiveDrawer::GetInstance()->DrawLine3d({0, 10, 0}, {10, 10, 10}, {0.0f, 1.0f, 0.0f, 1.0f});
-	//PrimitiveDrawer::GetInstance()->DrawLine3d({10, 10, 10}, {20, 20, 30}, {0.0f, 0.0f, 1.0f, 1.0f});
-	//PrimitiveDrawer::GetInstance()->DrawLine3d({20, 20, 30}, {0, 10, 0}, {0.0f, 0.0f, 1.0f, 1.0f});
 
 
 
@@ -189,11 +189,11 @@ void GameScene::CheckAllCollisions() {
 
 	Vector3 posA, posB, posC, posD;
 	const std::list<PlayerBullet*>& playerBullets = player_->GetBullets();
-	const std::list<EnemyBullet*>& enemyBullets = enemy_->GetBullets();
+	//const std::list<EnemyBullet*>& enemyBullets = enemy_->GetBullets();
 	
 	posA = player_->GetWorldPosition();
 
-	for (EnemyBullet* bullet : enemyBullets) {
+	for (EnemyBullet* bullet : enemyBullets_) {
 		posB = bullet->GetWorldPosition();
 		float distanceSq = 
 			(posB.x - posA.x) * (posB.x - posA.x) + 
@@ -216,38 +216,37 @@ void GameScene::CheckAllCollisions() {
 			(posB.x - posC.x) * (posB.x - posC.x) + 
 			(posB.y - posC.y) * (posB.y - posC.y) + 
 			(posB.z - posC.z) * (posB.z - posC.z);
-
+	
 		float radiusSum = enemy_->GetRadius() + bullet->GetRadius();
-
+	
 		if (distanceSq <= radiusSum * radiusSum) {
-
+	
 			bullet->OnCollision();
 			enemy_->OnCollision();
-
 			
 		}
 	}
-
-	for (EnemyBullet* enemyBullet : enemyBullets) {
+	
+	for (EnemyBullet* enemyBullet : enemyBullets_) {
 	
 		for (PlayerBullet* playerBullet : playerBullets) {
 			posB = enemyBullet->GetWorldPosition();
 			posD = playerBullet->GetWorldPosition();
-
+	
 			float distanceSq = 
 				(posB.x - posD.x) * (posB.x - posD.x) + 
 				(posB.y - posD.y) * (posB.y - posD.y) + 
 				(posB.z - posD.z) * (posB.z - posD.z);
-
+	
 			float radiusSum = enemyBullet->GetRadius() + playerBullet->GetRadius();
-
+	
 			if (distanceSq <= radiusSum * radiusSum) {
-
+	
 				playerBullet->OnCollision();
 				enemyBullet->OnCollision();
 			}
 		}
-
+	
 	}
 
 
@@ -260,58 +259,79 @@ void GameScene::AddEnemyBullet(EnemyBullet* enemyBullet) {
 
 }
 
-//void GameScene::LoadEnemyPopData() {
-//
-//    std::ifstream file;
-//	file.open("enemyPop.csv");
-//    assert(file.is_open());
-//
-//    enemyPopCommands << file.rdbuf();
-//
-//    file.close();
-//
-//}
+void GameScene::LoadEnemyPopData() {
 
-//void GameScene::UpdateEnemyPopCommands() {
-//
-//std::string line;
-//
-//while (getline(enemyPopCommands, line)) {
-//
-//std::istringstream line_stream(line);
-//
-//std::string word;
-//
-//getline(line_stream, word, ',');
-//
-//if (word.find("//") == 0) {
-//	continue;
-//}
-//if (word.find("POP") == 0) {
-//	getline(line_stream, word, ',');
-//	float x = (float)std::atof(word.c_str());
-//
-//	getline(line_stream, word, ',');
-//	float y = (float)std::atof(word.c_str());
-//
-//	getline(line_stream, word, ',');
-//	float z = (float)std::atof(word.c_str());
-//
-//	enemy_->(Vector3(x, y, z));
-//} else if (word.find("WAIT") == 0) {
-//
-//getline(line_stream, word, ',');
-//
-//int32_t waitTime = atoi(word.c_str());
-//
-//
-//
-//break;
-//
-//}
-//
-//
-//}
-//
-//}
-//
+    std::ifstream file;
+	file.open("./Resources/enemyPop.csv");
+    assert(file.is_open());
+
+    enemyPopCommands << file.rdbuf();
+
+    file.close();
+
+}
+
+void GameScene::UpdateEnemyPopCommands() {
+
+
+	if (isWaiting_) {
+		--waitTimer_;
+		if (--waitTimer_ <= 0) {
+			isWaiting_ = false;
+		} 
+		return;
+	}
+
+
+
+std::string line;
+
+while (getline(enemyPopCommands, line)) {
+
+std::istringstream line_stream(line);
+
+std::string word;
+
+getline(line_stream, word, ',');
+
+if (word.find("//") == 0) {
+	continue;
+}
+if (word.find("POP") == 0) {
+	getline(line_stream, word, ',');
+	float x = (float)std::atof(word.c_str());
+
+	getline(line_stream, word, ',');
+	float y = (float)std::atof(word.c_str());
+
+	getline(line_stream, word, ',');
+	float z = (float)std::atof(word.c_str());
+
+	SpawnEnemy(Vector3(x, y, z));
+} else if (word.find("WAIT") == 0) {
+
+getline(line_stream, word, ',');
+
+int32_t waitTime = atoi(word.c_str());
+
+  isWaiting_ = true;     
+  waitTimer_ = waitTime; 
+
+break;
+
+}
+
+
+}
+
+}
+
+void GameScene::SpawnEnemy(const Vector3& position) {
+
+    Enemy* newEnemy = new Enemy();
+	newEnemy->Initialize(enemyModel_, position, ViewProjection_);
+	newEnemy->SetGameScene(this);
+	newEnemy->SetPlayer(player_);
+	enemies_.push_back(newEnemy); 
+
+}
