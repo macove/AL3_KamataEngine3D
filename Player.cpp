@@ -123,15 +123,38 @@ void Player::Update() {
 	offset = Multiply( Normalize(offset),kDistancePlayerTo3DReticle);
 	worldTransform3DReticle_.translation_ = Add(worldTransform_.translation_, offset);
 	worldTransform3DReticle_.UpdateMatrix();
-
+	
 	 Vector3 positionReticle = worldTransform3DReticle_.translation_;
-    Matrix4x4 matViewport = MakeViewportMatrix(0, 0, WinApp::kWindowWidth, WinApp::kWindowHeight, 0, 1);
+     Matrix4x4 matViewport = MakeViewportMatrix(0, 0, WinApp::kWindowWidth, WinApp::kWindowHeight, 0, 1);
 	 Matrix4x4 matViewProjectionViewport = Multiply(Multiply(viewProjection_->matView, viewProjection_->matProjection), matViewport);
 	
-    positionReticle = Transform(positionReticle, matViewProjectionViewport);
-
+     positionReticle = Transform(positionReticle, matViewProjectionViewport);
+	
 	 sprite2DReticle_->SetPosition(Vector2(positionReticle.x, positionReticle.y));
 
+	 POINT mousePosition;
+	 GetCursorPos(&mousePosition);
+	 HWND hwnd = WinApp::GetInstance()->GetHwnd();
+	 ScreenToClient(hwnd, &mousePosition);
+
+	 sprite2DReticle_->SetPosition(Vector2(float(mousePosition.x), float(mousePosition.y)));
+
+	// Matrix4x4 matViewport = MakeViewportMatrix(0, 0, WinApp::kWindowWidth, WinApp::kWindowHeight, 0, 1);
+	//Matrix4x4 matViewProjectionViewport = Multiply(Multiply(viewProjection_->matView, viewProjection_->matProjection), matViewport);
+
+	 Matrix4x4 matInverseVPV = Inverse(matViewProjectionViewport);
+
+	 Vector3 posNear = Vector3(float(mousePosition.x), float(mousePosition.y), 0.0f);
+	 Vector3 posFar = Vector3(float(mousePosition.x), float(mousePosition.y), 1.0f);
+	 posNear = Transform(posNear, matInverseVPV);
+	 posFar = Transform(posFar, matInverseVPV);
+
+	 Vector3 mouseDirection = Subtract(posFar, posNear);
+	 mouseDirection = Normalize(mouseDirection);
+
+	 const float kDistanceTestObject = 20.0f;
+	 worldTransform3DReticle_.translation_ = Add(posNear, Multiply(mouseDirection, kDistanceTestObject));
+	 worldTransform3DReticle_.UpdateMatrix();
 }
 
 void Player::Draw() {
@@ -174,15 +197,12 @@ if (input_->TriggerKey(DIK_SPACE)) {
 	Vector3 velocity = Multiply(bulletDirection,kBulletSpeed);
 
 
-
 PlayerBullet* newBullet = new PlayerBullet();
     newBullet->SetParent(worldTransform_.parent_);
 	newBullet->Initialize(model_, worldTransform_.translation_, viewProjection_,velocity);
 	 bullets_.push_back(newBullet);
 
 }
-
-
 
 
 }
