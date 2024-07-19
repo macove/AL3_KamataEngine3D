@@ -12,6 +12,7 @@ namespace MyMathematics {
     Vector3 Normalize(const Vector3& v);
     Vector3 TransFormNormal(const Vector3& v, const Matrix4x4& m);
     Vector3 Transform(const Vector3& vector, const Matrix4x4& matrix);
+    Vector3 Multiply(const Vector3& v, const Matrix4x4& matrix);
     Matrix4x4 MakePerspectiveFovMatrix(float fovY, float aspectRatio, float nearClip, float farClip);
     Matrix4x4 MakeOrthographicMatrix(float left, float top, float right, float bottom, float nearClip, float farClip);
 	Matrix4x4 MakeRotateXMatrix(float radian);
