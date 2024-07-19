@@ -28,6 +28,7 @@ GameScene::~GameScene() {
 
 	delete mapChipField_;
 	delete debugCamera_;
+	delete cameraController_;
 }
 
 void GameScene::Initialize() {
@@ -77,9 +78,12 @@ void GameScene::Initialize() {
 
 	skydome_->Initialize(modelSkydome_, ViewProjection_);
 
+	///////////////////////////////////////////////
 
-
-	
+	cameraController_ = new CameraController; 
+	cameraController_->Initialize(ViewProjection_);
+	cameraController_->SetTarget(player_); 
+	cameraController_->Reset(); 
 
 
 }
@@ -117,6 +121,8 @@ void GameScene::Update() {
 	
 	#endif
 	skydome_->Update();
+
+	cameraController_->Update();
 }
 
 void GameScene::Draw() {

@@ -73,6 +73,10 @@ class Player {
 
 		void CheckMapUpCollision(CollisionMapInfo& info);
 	    void CheckMapDownCollision(CollisionMapInfo& info);
+
+		Vector3 GetWorldPosition() const;
+	    const WorldTransform& GetWorldTransform() const;
+
 	    //void CheckMapRightCollision(CollisionMapInfo& info);
 	    //void CheckMapLeftCollision(CollisionMapInfo& info);
 

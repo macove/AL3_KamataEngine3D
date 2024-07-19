@@ -153,6 +153,12 @@ void Player::HandleDirectionChange(bool rightPressed, bool leftPressed) {
     }
 }
 
+Vector3 Player::GetWorldPosition() const { return Transform(Vector3{0, 0, 0}, worldTransform_.matWorld_); }
+
+const WorldTransform& Player::GetWorldTransform() const { return worldTransform_; }
+
+
+
 //void Player::CheckMapUpCollision(CollisionMapInfo& info) {}
 
 //void Player::CheckMapDownCollision(CollisionMapInfo& info) {}
