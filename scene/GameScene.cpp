@@ -36,13 +36,14 @@ void GameScene::Initialize() {
 	playerModel_ = new Model();
 	ViewProjection_ = new ViewProjection();
 
+
+	TextureManager::Load("./Resources/reticle.png");
+
 	uint32_t playerTextureHandle = TextureManager::Load("./Resources/sample.png");
 
 	playerModel_ = Model::Create();
 	ViewProjection_->Initialize();
 	
-	
-
 	
 	enemyModel_ = new Model();
 	enemyModel_ = Model::Create();
@@ -67,6 +68,7 @@ void GameScene::Initialize() {
 	Vector3 playerPosition(0, 0, 50.0f);
 	player_->Initialize(playerModel_, playerTextureHandle, ViewProjection_, playerPosition);
 	
+
 }
 
 void GameScene::Update() {
@@ -170,7 +172,7 @@ void GameScene::Draw() {
 	/// ここに前景スプライトの描画処理を追加できる
 	/// </summary>
 
-	//player_->DrawUI();
+	player_->DrawUI();
 
 	// スプライト描画後処理
 	Sprite::PostDraw();

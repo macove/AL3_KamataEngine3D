@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <math.h>
 #include <WinApp.h>
+#include <Model.h>
 
 using namespace MyMathematics;
 
@@ -43,8 +44,8 @@ void Player::Initialize(Model* model, uint32_t textureHandle, ViewProjection* vi
 
 	 worldTransform3DReticle_.Initialize();
 
-	 //uint32_t textureReticle = TextureManager::Load("./Resources/reticle.png");
-	// sprite2DReticle_ = Sprite::Create(textureReticle, Vector2(0.0f, 0.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f), Vector2(0.5f, 0.5f));
+	 uint32_t textureReticle = TextureManager::Load("./Resources/reticle.png");
+	 sprite2DReticle_ = Sprite::Create(textureReticle, Vector2(0.0f, 0.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f), Vector2(0.5f, 0.5f));
 }
 
 void Player::Update() {
@@ -123,7 +124,7 @@ void Player::Update() {
 	//worldTransform3DReticle_.translation_ = Vector3(worldTransform_.translation_.x, worldTransform_.translation_.y, 50.0f);
 	const float kDistancePlayerTo3DReticle = 50.0f;
 	Vector3 offset = {0, 0, 1.0f}; 
-	offset = Multiply(offset, worldTransform_.matWorld_);
+	//offset = Multiply(offset, worldTransform_.matWorld_);
 	offset = Multiply( Normalize(offset),kDistancePlayerTo3DReticle);
 	worldTransform3DReticle_.translation_ = Add(worldTransform_.translation_, offset);
 	worldTransform3DReticle_.UpdateMatrix();
@@ -161,7 +162,7 @@ void Player::Update() {
 void Player::Draw() {
 
 	model_->Draw(worldTransform_, *viewProjection_, textureHandle_);
-	model_->Draw(worldTransform3DReticle_, *viewProjection_, textureHandle_);
+	//model_->Draw(worldTransform3DReticle_, *viewProjection_, textureHandle_);
 	for (PlayerBullet* bullet : bullets_) {
 		bullet->Draw();
 	}

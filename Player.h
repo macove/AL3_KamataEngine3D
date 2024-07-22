@@ -9,12 +9,6 @@
 #include <ViewProjection.h>
 
 #pragma once
-//
-//
-//struct ViewProject {
-//	Matrix4x4 matView;
-//	Matrix4x4 matProjection;
-//};
 
 
 class Player {
@@ -71,5 +65,4 @@ class Player {
 
 			Sprite* sprite2DReticle_ = nullptr;
 
-			//ViewProject* viewProject_;
 };
