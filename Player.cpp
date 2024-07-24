@@ -56,33 +56,47 @@ void Player::Update() {
 
 	//worldTransform_.matWorld_ = MakeAffineMatrix(worldTransform_.scale_, worldTransform_.rotation_, worldTransform_.translation_);
 
-	
+	XINPUT_STATE joyState;
+
+	//ZeroMemory(&joyState, sizeof(XINPUT_STATE));
 
 	Vector3 move = {0, 0, 0};
+	const float kCharacterSpeed = 0.4f;
 
-	const float kCharacterSpeed = 0.2f;
-	bool rightPressed = input_->PushKey(DIK_RIGHT);
-	bool leftPressed = input_->PushKey(DIK_LEFT);
-	bool upPressed = input_->PushKey(DIK_UP);
-	bool downPressed = input_->PushKey(DIK_DOWN);
-	bool forwardPressed = input_->PushKey(DIK_W);
-	bool backwardPressed = input_->PushKey(DIK_S);
+	// Get the state of the gamepad
+	if (Input::GetInstance()->GetJoystickState(0, joyState)) {
+		
 
-	if (rightPressed || leftPressed) {
-		move.x = rightPressed ? kCharacterSpeed : -kCharacterSpeed;
+		move.x += (float)joyState.Gamepad.sThumbLX / SHRT_MAX * kCharacterSpeed;
+		move.y += (float)joyState.Gamepad.sThumbLY / SHRT_MAX * kCharacterSpeed;
 	}
-	if (upPressed || downPressed) {
-		move.y = upPressed ? kCharacterSpeed : -kCharacterSpeed;
-	}
-	if (forwardPressed || backwardPressed) {
-		move.z = forwardPressed ? kCharacterSpeed : -kCharacterSpeed;
-	}
+	//Vector3 move = {0, 0, 0};
+	//
+	//const float kCharacterSpeed = 0.4f;
+	//bool rightPressed = input_->PushKey(DIK_RIGHT);
+	//bool leftPressed = input_->PushKey(DIK_LEFT);
+	//bool upPressed = input_->PushKey(DIK_UP);
+	//bool downPressed = input_->PushKey(DIK_DOWN);
+	//bool forwardPressed = input_->PushKey(DIK_W);
+	//bool backwardPressed = input_->PushKey(DIK_S);
+	//
+	//
+	//
+	//if (rightPressed || leftPressed) {
+	//	move.x = rightPressed ? kCharacterSpeed : -kCharacterSpeed;
+	//}
+	//if (upPressed || downPressed) {
+	//	move.y = upPressed ? kCharacterSpeed : -kCharacterSpeed;
+	//}
+	//if (forwardPressed || backwardPressed) {
+	//	move.z = forwardPressed ? kCharacterSpeed : -kCharacterSpeed;
+	//}
 
 	worldTransform_.translation_ = Add(worldTransform_.translation_, move);
 
-	const float kMoveLimitX = 35.0f;
-	const float kMoveLimitY = 18.0f;
-	const float kMoveLimitZ = 50.0f;
+	const float kMoveLimitX = 40.0f;
+	const float kMoveLimitY = 20.0f;
+	const float kMoveLimitZ = 80.0f;
 
 	worldTransform_.translation_.x = std::max(worldTransform_.translation_.x, -kMoveLimitX);
 	worldTransform_.translation_.x = std::min(worldTransform_.translation_.x, +kMoveLimitX);
@@ -107,37 +121,60 @@ void Player::Update() {
 		return false;
 	});
 
-	ImGui::Begin("Player");
-	ImGui::PushItemWidth(100); 
-	ImGui::SliderFloat("X", &worldTransform_.translation_.x, -35.0f, 35.0f);
-	ImGui::SameLine();
-	ImGui::SliderFloat("Y", &worldTransform_.translation_.y, -18.0f, 18.0f);
-	ImGui::SameLine();
-	ImGui::SliderFloat("Z", &worldTransform_.translation_.z, -10.0f, 10.0f);
-	ImGui::End();
+	
 
 	worldTransform_.UpdateMatrix();
 
-	const float kDistancePlayerTo3DReticle = 20.0f;
+	const float kDistancePlayerTo3DReticle = 50.0f;
 	Vector3 offset = {0, 0, 1.0f}; 
-	offset = Multiply( Normalize(offset),kDistancePlayerTo3DReticle);
+	//offset = Multiply(offset, worldTransform_.matWorld_);
+	offset = Multiply(Normalize(offset),kDistancePlayerTo3DReticle);
 	worldTransform3DReticle_.translation_ = Add(worldTransform_.translation_, offset);
 	worldTransform3DReticle_.UpdateMatrix();
 
-	 Vector3 positionReticle = worldTransform3DReticle_.translation_;
-    Matrix4x4 matViewport = MakeViewportMatrix(0, 0, WinApp::kWindowWidth, WinApp::kWindowHeight, 0, 1);
-	 Matrix4x4 matViewProjectionViewport = Multiply(Multiply(viewProjection_->matView, viewProjection_->matProjection), matViewport);
+	Vector3 positionReticle = worldTransform3DReticle_.translation_;
+	
+	Matrix4x4 matViewport = MakeViewportMatrix(0, 0, WinApp::kWindowWidth, WinApp::kWindowHeight, 0, 1);
+	Matrix4x4 matViewProjectionViewport = Multiply(Multiply(viewProjection_->matView, viewProjection_->matProjection), matViewport);
 	
     positionReticle = Transform(positionReticle, matViewProjectionViewport);
+	
+    sprite2DReticle_->SetPosition(Vector2(positionReticle.x, positionReticle.y));
+	
+	Vector2 spritePosition = sprite2DReticle_->GetPosition();
+	
 
-	 sprite2DReticle_->SetPosition(Vector2(positionReticle.x, positionReticle.y));
+	if (Input::GetInstance()->GetJoystickState(0, joyState)) {
+	
+		spritePosition.x += ((float)joyState.Gamepad.sThumbRX / SHRT_MAX) * 640.0f;
+		spritePosition.y -= ((float)joyState.Gamepad.sThumbRY / SHRT_MAX) * 360.0f;
+	
+		sprite2DReticle_->SetPosition(spritePosition);
+	}
+
+	 //worldTransform3DReticle_.UpdateMatrix();
+
+	 ImGui::Begin("Player");
+	 ImGui::PushItemWidth(100);
+	 ImGui::SliderFloat("X", &worldTransform_.translation_.x, -40.0f, 40.0f);
+	 ImGui::SameLine();
+	 ImGui::SliderFloat("Y", &worldTransform_.translation_.y, -.0f, 20.0f);
+	 ImGui::SameLine();
+	 ImGui::SliderFloat("Z", &worldTransform_.translation_.z, -80.0f, 80.0f);
+	// ImGui::Text("2DReticle:(%d,%d)", mousePosition.x, mousePosition.y);
+	// ImGui::Text("Near:(%+.2f,%+.2f,%+.2f)", posNear.x, posNear.y, posNear.z);
+	// ImGui::Text("Far:(%+.2f,%+.2f,%+.2f)", posFar.x, posFar.y, posFar.z);
+	 ImGui::Text("3DReticle:(%+.2f,%+.2f,%+.2f)", worldTransform3DReticle_.translation_.x, worldTransform3DReticle_.translation_.y, worldTransform3DReticle_.translation_.z);
+	 ImGui::End();
+
+
 
 }
 
 void Player::Draw() {
 
 	model_->Draw(worldTransform_, *viewProjection_, textureHandle_);
-	//model_->Draw(worldTransform3DReticle_, *viewProjection_, textureHandle_);
+	model_->Draw(worldTransform3DReticle_, *viewProjection_, textureHandle_);
 	for (PlayerBullet* bullet : bullets_) {
 		bullet->Draw();
 	}
@@ -165,22 +202,24 @@ worldTransform_.rotation_.y += aPressed ? kRotSpeed : -kRotSpeed;
 
 void Player::Attack() {
 
+	XINPUT_STATE joyState;
+	if (!Input::GetInstance()->GetJoystickState(0, joyState)) {
+		return;
+	}
 
-if (input_->TriggerKey(DIK_SPACE)) {
+	if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) {
+		Vector3 bulletDirection = Subtract(worldTransform3DReticle_.translation_, worldTransform_.translation_);
+		bulletDirection = Normalize(bulletDirection);
+		const float kBulletSpeed = 1.0f;
+		Vector3 velocity = Multiply(bulletDirection, kBulletSpeed);
 
-	Vector3 bulletDirection = Subtract(worldTransform3DReticle_.translation_, worldTransform_.translation_);
-	bulletDirection = Normalize(bulletDirection);
-	const float kBulletSpeed = 1.0f;
-	Vector3 velocity = Multiply(bulletDirection,kBulletSpeed);
+		PlayerBullet* newBullet = new PlayerBullet();
+		newBullet->SetParent(worldTransform_.parent_);
+		newBullet->Initialize(model_, worldTransform_.translation_, viewProjection_, velocity);
+		bullets_.push_back(newBullet);
+	}
 
 
-
-PlayerBullet* newBullet = new PlayerBullet();
-    newBullet->SetParent(worldTransform_.parent_);
-	newBullet->Initialize(model_, worldTransform_.translation_, viewProjection_,velocity);
-	 bullets_.push_back(newBullet);
-
-}
 
 
 

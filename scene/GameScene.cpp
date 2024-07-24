@@ -36,6 +36,8 @@ void GameScene::Initialize() {
 	playerModel_ = new Model();
 	ViewProjection_ = new ViewProjection();
 
+	//TextureManager::Load("./Resources/reticle.png");
+
 	uint32_t playerTextureHandle = TextureManager::Load("./Resources/sample.png");
 
 	playerModel_ = Model::Create();
