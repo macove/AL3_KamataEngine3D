@@ -11,7 +11,7 @@ GameScene::GameScene() {
 
 GameScene::~GameScene() { 
 	//delete sprite_;
-	delete player_;
+	//delete player_;
 	
 }
 
@@ -21,7 +21,8 @@ void GameScene::Initialize() {
 	input_ = Input::GetInstance();
 	audio_ = Audio::GetInstance();
 
-	player_ = new Player();
+	player_ = std::make_unique<Player>();
+	//player_ = new Player();
 
 	playerModel_ = new Model();
 
