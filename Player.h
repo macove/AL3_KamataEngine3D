@@ -65,4 +65,6 @@ class Player {
 
 			Sprite* sprite2DReticle_ = nullptr;
 
+
+
 };

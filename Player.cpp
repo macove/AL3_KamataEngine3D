@@ -42,57 +42,41 @@ void Player::Initialize(Model* model, uint32_t textureHandle, ViewProjection* vi
 
 	uint32_t textureReticle = TextureManager::Load("./Resources/reticle.png");
 	sprite2DReticle_ = Sprite::Create(textureReticle, Vector2(0.0f, 0.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f), Vector2(0.5f, 0.5f));
+
+	
+	Vector3 positionReticle = worldTransform3DReticle_.translation_;
+	
+	Matrix4x4 matViewport = MakeViewportMatrix(0, 0, WinApp::kWindowWidth, WinApp::kWindowHeight, 0, 1);
+	Matrix4x4 matViewProjectionViewport = Multiply(Multiply(viewProjection_->matView, viewProjection_->matProjection), matViewport);
+	
+	positionReticle = Transform(positionReticle, matViewProjectionViewport);
+	
+	sprite2DReticle_->SetPosition(Vector2(positionReticle.x, positionReticle.y));
+	
+
 }
 
 void Player::Update() {
 
-	worldTransformBlock->UpdateMatrix();
-
-	worldTransform_.TransferMatrix();
-
-	// worldTransform_.matWorld_ = MakeAffineMatrix(worldTransform_.scale_, worldTransform_.rotation_, worldTransform_.translation_);
-
-	XINPUT_STATE joyState;
-
-	// ZeroMemory(&joyState, sizeof(XINPUT_STATE));
-
+	 // Handle input
 	Vector3 move = {0, 0, 0};
 	const float kCharacterSpeed = 0.4f;
 
-	// Get the state of the gamepad
+	XINPUT_STATE joyState;
 	if (Input::GetInstance()->GetJoystickState(0, joyState)) {
-
+		// Move the player based on joystick input
 		move.x += (float)joyState.Gamepad.sThumbLX / SHRT_MAX * kCharacterSpeed;
 		move.y += (float)joyState.Gamepad.sThumbLY / SHRT_MAX * kCharacterSpeed;
 	}
-	// Vector3 move = {0, 0, 0};
-	//
-	// const float kCharacterSpeed = 0.4f;
-	// bool rightPressed = input_->PushKey(DIK_RIGHT);
-	// bool leftPressed = input_->PushKey(DIK_LEFT);
-	// bool upPressed = input_->PushKey(DIK_UP);
-	// bool downPressed = input_->PushKey(DIK_DOWN);
-	// bool forwardPressed = input_->PushKey(DIK_W);
-	// bool backwardPressed = input_->PushKey(DIK_S);
-	//
-	//
-	//
-	// if (rightPressed || leftPressed) {
-	//	move.x = rightPressed ? kCharacterSpeed : -kCharacterSpeed;
-	// }
-	// if (upPressed || downPressed) {
-	//	move.y = upPressed ? kCharacterSpeed : -kCharacterSpeed;
-	// }
-	// if (forwardPressed || backwardPressed) {
-	//	move.z = forwardPressed ? kCharacterSpeed : -kCharacterSpeed;
-	// }
 
+	// Update player position and apply movement limits
 	worldTransform_.translation_ = Add(worldTransform_.translation_, move);
 
-	const float kMoveLimitX = 40.0f;
-	const float kMoveLimitY = 20.0f;
-	const float kMoveLimitZ = 80.0f;
+	const float kMoveLimitX = 40.0f; // Limit for x-axis movement
+	const float kMoveLimitY = 20.0f; // Limit for y-axis movement
+	const float kMoveLimitZ = 80.0f; // Limit for z-axis movement
 
+	// Apply movement limits
 	worldTransform_.translation_.x = std::max(worldTransform_.translation_.x, -kMoveLimitX);
 	worldTransform_.translation_.x = std::min(worldTransform_.translation_.x, +kMoveLimitX);
 	worldTransform_.translation_.y = std::max(worldTransform_.translation_.y, -kMoveLimitY);
@@ -100,51 +84,61 @@ void Player::Update() {
 	worldTransform_.translation_.z = std::max(worldTransform_.translation_.z, -kMoveLimitZ);
 	worldTransform_.translation_.z = std::min(worldTransform_.translation_.z, +kMoveLimitZ);
 
+	// Handle attack logic
 	Attack();
+
+	// Handle rotation logic
 	Rotate();
 
+	// Update the position of the 3D reticle relative to the player
+	const float kDistancePlayerTo3DReticle = 50.0f; // Distance from player to reticle
+	Vector3 offset = {0, 0, 1.0f};                  // Offset in front of the player
+	offset = Multiply(offset, worldTransform_.matWorld_);
+	offset = Multiply(Normalize(offset), kDistancePlayerTo3DReticle);
+	worldTransform3DReticle_.translation_ = Add(worldTransform_.translation_, offset);
+	worldTransform3DReticle_.UpdateMatrix();
+
+	// Update the position of the 2D reticle based on joystick input
+	Vector2 spritePosition = sprite2DReticle_->GetPosition();
+
+	Matrix4x4 matViewport = MakeViewportMatrix(0, 0, WinApp::kWindowWidth, WinApp::kWindowHeight, 0, 1);
+	Matrix4x4 matViewProjectionViewport = Multiply(Multiply(viewProjection_->matView, viewProjection_->matProjection), matViewport);
+	Matrix4x4 matInverseVPV = Inverse(matViewProjectionViewport);
+	Vector3 posNear = Vector3(float(spritePosition.x), float(spritePosition.y), 0.0f);
+	Vector3 posFar = Vector3(float(spritePosition.x), float(spritePosition.y), 1.0f);
+	posNear = Transform(posNear, matInverseVPV);
+	posFar = Transform(posFar, matInverseVPV);
+	Vector3 joystickDirection = Subtract(posFar, posNear);
+	joystickDirection = Normalize(joystickDirection);
+	const float kDistanceTestObject = 100.0f;
+	worldTransform3DReticle_.translation_ = Add(posNear, Multiply(joystickDirection, kDistanceTestObject));
+	
+	worldTransform3DReticle_.translation_.z = 100.0f;
+
+	worldTransform3DReticle_.UpdateMatrix();
+
+	if (Input::GetInstance()->GetJoystickState(0, joyState)) {
+		spritePosition.x += ((float)joyState.Gamepad.sThumbRX / SHRT_MAX) * 10.0f;
+		spritePosition.y -= ((float)joyState.Gamepad.sThumbRY / SHRT_MAX) * 10.0f;
+		sprite2DReticle_->SetPosition(spritePosition);
+	}
+
+	
+
+
+	// Update each bullet and remove dead bullets
 	for (PlayerBullet* bullet : bullets_) {
 		bullet->Update();
 	}
 	bullets_.remove_if([](PlayerBullet* bullet) {
 		if (bullet->IsDead()) {
-
 			delete bullet;
 			return true;
 		}
 		return false;
 	});
 
-	worldTransform_.UpdateMatrix();
-
-	const float kDistancePlayerTo3DReticle = 50.0f;
-	Vector3 offset = {0, 0, 1.0f};
-	// offset = Multiply(offset, worldTransform_.matWorld_);
-	offset = Multiply(Normalize(offset), kDistancePlayerTo3DReticle);
-	worldTransform3DReticle_.translation_ = Add(worldTransform_.translation_, offset);
-	worldTransform3DReticle_.UpdateMatrix();
-
-	Vector3 positionReticle = worldTransform3DReticle_.translation_;
-
-	Matrix4x4 matViewport = MakeViewportMatrix(0, 0, WinApp::kWindowWidth, WinApp::kWindowHeight, 0, 1);
-	Matrix4x4 matViewProjectionViewport = Multiply(Multiply(viewProjection_->matView, viewProjection_->matProjection), matViewport);
-
-	positionReticle = Transform(positionReticle, matViewProjectionViewport);
-
-	sprite2DReticle_->SetPosition(Vector2(positionReticle.x, positionReticle.y));
-
-	Vector2 spritePosition = sprite2DReticle_->GetPosition();
-
-	if (Input::GetInstance()->GetJoystickState(0, joyState)) {
-
-		spritePosition.x += ((float)joyState.Gamepad.sThumbRX / SHRT_MAX) * 640.0f;
-		spritePosition.y -= ((float)joyState.Gamepad.sThumbRY / SHRT_MAX) * 360.0f;
-
-		sprite2DReticle_->SetPosition(spritePosition);
-	}
-
-	// worldTransform3DReticle_.UpdateMatrix();
-
+	// Update debug UI with ImGui
 	ImGui::Begin("Player");
 	ImGui::PushItemWidth(100);
 	ImGui::SliderFloat("X", &worldTransform_.translation_.x, -40.0f, 40.0f);
@@ -152,17 +146,17 @@ void Player::Update() {
 	ImGui::SliderFloat("Y", &worldTransform_.translation_.y, -.0f, 20.0f);
 	ImGui::SameLine();
 	ImGui::SliderFloat("Z", &worldTransform_.translation_.z, -80.0f, 80.0f);
-	// ImGui::Text("2DReticle:(%d,%d)", mousePosition.x, mousePosition.y);
-	// ImGui::Text("Near:(%+.2f,%+.2f,%+.2f)", posNear.x, posNear.y, posNear.z);
-	// ImGui::Text("Far:(%+.2f,%+.2f,%+.2f)", posFar.x, posFar.y, posFar.z);
 	ImGui::Text("3DReticle:(%+.2f,%+.2f,%+.2f)", worldTransform3DReticle_.translation_.x, worldTransform3DReticle_.translation_.y, worldTransform3DReticle_.translation_.z);
 	ImGui::End();
+
+	// Update the transformation matrix
+	worldTransformBlock->UpdateMatrix();
 }
 
 void Player::Draw() {
 
 	model_->Draw(worldTransform_, *viewProjection_, textureHandle_);
-	model_->Draw(worldTransform3DReticle_, *viewProjection_, textureHandle_);
+	//model_->Draw(worldTransform3DReticle_, *viewProjection_, textureHandle_);
 	for (PlayerBullet* bullet : bullets_) {
 		bullet->Draw();
 	}
