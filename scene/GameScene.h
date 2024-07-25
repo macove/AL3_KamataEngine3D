@@ -58,9 +58,10 @@ private: // メンバ変数
 	//自キャラ
 	std::unique_ptr<Player> player_;
 	//Player* player_ = nullptr;
-	ViewProjection* playerViewProjection_ = nullptr;
-	Model* playerModel_ = nullptr;
-
+	//ViewProjection* playerViewProjection_ = nullptr;
+	std::unique_ptr<ViewProjection> playerViewProjection_;
+	//Model* playerModel_ = nullptr;
+	std::unique_ptr<Model> playerModel_;
 
 	/// </summary>
 };

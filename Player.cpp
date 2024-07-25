@@ -7,7 +7,7 @@ Player::Player() {
 
 Player::~Player() {
 
-delete model_;
+
 
 }
 

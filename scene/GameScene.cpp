@@ -1,7 +1,7 @@
 #include "GameScene.h"
 #include "TextureManager.h"
 #include <cassert>
-
+#include <memory>
 
 
 GameScene::GameScene() {
@@ -22,19 +22,17 @@ void GameScene::Initialize() {
 	audio_ = Audio::GetInstance();
 
 	player_ = std::make_unique<Player>();
-	//player_ = new Player();
+	playerModel_.reset(Model::Create());
+	playerViewProjection_ = std::make_unique<ViewProjection>();
 
-	playerModel_ = new Model();
-
-	playerViewProjection_ = new ViewProjection();
 
     uint32_t playerTextureHandle = TextureManager::Load("./Resources/kuma1.png");
 
-	playerModel_ = Model::Create();
+	//playerModel_ = Model::Create();
 
 	playerViewProjection_->Initialize();
 
-	player_->Initialize(playerModel_, playerTextureHandle, playerViewProjection_);
+	player_->Initialize(playerModel_.get(), playerTextureHandle, playerViewProjection_.get());
 
 
 }
