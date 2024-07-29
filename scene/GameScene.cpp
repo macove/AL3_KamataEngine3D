@@ -23,23 +23,27 @@ void GameScene::Initialize() {
 
 	player_ = std::make_unique<Player>();
 	playerModel_.reset(Model::Create());
-	playerViewProjection_ = std::make_unique<ViewProjection>();
+	ViewProjection_ = std::make_unique<ViewProjection>();
 
 
     uint32_t playerTextureHandle = TextureManager::Load("./Resources/kuma1.png");
 
-	//playerModel_ = Model::Create();
 
-	playerViewProjection_->Initialize();
+	ViewProjection_->Initialize();
 
-	player_->Initialize(playerModel_.get(), playerTextureHandle, playerViewProjection_.get());
+	player_->Initialize(playerModel_.get(), playerTextureHandle, ViewProjection_.get());
 
+	skydome_ = new Skydome();
 
+	modelSkydome_ = Model::CreateFromOBJ("skydome", true);
+
+	skydome_->Initialize(modelSkydome_, ViewProjection_.get());
 }
 
 void GameScene::Update() {
 
 	player_->Update();
+	skydome_->Update();
 	
 }
 
@@ -73,7 +77,7 @@ void GameScene::Draw() {
 	/// </summary>
 	player_->Draw();
 
-	
+	skydome_->Draw();
 
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();

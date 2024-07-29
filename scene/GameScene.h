@@ -10,6 +10,8 @@
 #include "ImGuiManager.h"
 #include "Player.h"
 #include <memory>
+#include "Skydome.h"
+
 /// <summary>
 /// ゲームシーン
 /// </summary>
@@ -57,11 +59,13 @@ private: // メンバ変数
 	//ViewProjection viewProjection_;
 	//自キャラ
 	std::unique_ptr<Player> player_;
-	//Player* player_ = nullptr;
-	//ViewProjection* playerViewProjection_ = nullptr;
-	std::unique_ptr<ViewProjection> playerViewProjection_;
-	//Model* playerModel_ = nullptr;
+	std::unique_ptr<ViewProjection> ViewProjection_;
 	std::unique_ptr<Model> playerModel_;
+
+
+	Skydome* skydome_ = nullptr;
+
+	Model* modelSkydome_ = nullptr;
 
 	/// </summary>
 };
