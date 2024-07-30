@@ -17,9 +17,8 @@ void CameraController::Update() {
 
 
 	const WorldTransform& targetWorldTransform = target_->GetWorldTransform();
-
-	viewProjection_->translation_ = Add(targetWorldTransform.translation_, targetOffset_);
-
+	targetPosition = Add(targetWorldTransform.translation_ ,targetOffset_);
+	viewProjection_->translation_ = Lerp(viewProjection_->translation_, targetPosition, kInterpolationRate);
 
 	viewProjection_->translation_.x = std::max(moveableArea_.left, std::min(viewProjection_->translation_.x, moveableArea_.right));
 	viewProjection_->translation_.y = std::max(moveableArea_.bottom, std::min(viewProjection_->translation_.y, moveableArea_.top));

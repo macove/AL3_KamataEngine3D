@@ -237,4 +237,12 @@ Matrix4x4 MyMathematics::Inverse(const Matrix4x4& m) {
 	return result;
 }
 
+Vector3 MyMathematics::Lerp(const Vector3& a, const Vector3& b, float t) {
+	Vector3 result;
+	result.x = t * a.x + (1.0f - t) * b.x;
+	result.y = t * a.y + (1.0f - t) * b.y;
+	result.z = t * a.z + (1.0f - t) * b.z;
+	return result;
+}
+
 ; // namespace MyMathematics

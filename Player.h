@@ -71,6 +71,8 @@ class Player {
 
 		void HandleDirectionChange(bool rightPressed, bool leftPressed);
 
+		const Vector3& GetVelocity() const { return velocity_; }
+
 		void CheckMapUpCollision(CollisionMapInfo& info);
 	    void CheckMapDownCollision(CollisionMapInfo& info);
 

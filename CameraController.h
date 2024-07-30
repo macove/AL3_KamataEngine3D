@@ -37,8 +37,9 @@ private:
 		 Vector3 targetOffset_{0, 0, -40.0f};
 
 		 Rect moveableArea_ = {0, 100, 0, 100};
-	    // static inline const float kInterpolationRate = 0.1f;
-	    // static inline const float kVelocityBias = 20.0f;
-	    // static inline const Rect margin = {-400, 400, -200, 200};
+	     Vector3 targetPosition;
+	     static inline const float kInterpolationRate = 0.1f;
+	     static inline const float kVelocityBias = 20.0f;
+	     static inline const Rect margin = {-400, 400, -200, 200};
 
 };
