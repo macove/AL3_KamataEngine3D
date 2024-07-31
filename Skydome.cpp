@@ -16,7 +16,7 @@ void Skydome::Initialize(Model* model, ViewProjection* viewProjection) {
 
 void Skydome::Update() {
 
-worldTransform_.UpdateMatrix();
+worldTransform_.
 
 }
 
