@@ -21,7 +21,7 @@ class Player {
 
 		///</param>
 
-	    void Initialize(Model* model, uint32_t textureHandle, ViewProjection* viewProjection);
+	    void Initialize(Model* model, ViewProjection* viewProjection);
 
 		/// <summary>
 	    /// 更新
@@ -39,8 +39,6 @@ class Player {
 			WorldTransform worldTransform_;
 
 			Model* model_ = nullptr;
-
-			uint32_t textureHandle_ = 0u;
 
 			ViewProjection* viewProjection_ = nullptr;
 

@@ -12,7 +12,8 @@ GameScene::GameScene() {
 GameScene::~GameScene() { 
 	//delete sprite_;
 	//delete player_;
-	
+	//delete skydome_;
+	//delete ground_;
 }
 
 void GameScene::Initialize() {
@@ -22,29 +23,48 @@ void GameScene::Initialize() {
 	audio_ = Audio::GetInstance();
 
 	player_ = std::make_unique<Player>();
-	playerModel_.reset(Model::Create());
+	playerModel_ = std::unique_ptr<Model>(Model::CreateFromOBJ("player1", true));
 	ViewProjection_ = std::make_unique<ViewProjection>();
-
-
-    uint32_t playerTextureHandle = TextureManager::Load("./Resources/kuma1.png");
-
 
 	ViewProjection_->Initialize();
 
-	player_->Initialize(playerModel_.get(), playerTextureHandle, ViewProjection_.get());
+	player_->Initialize(playerModel_.get(), ViewProjection_.get());
 
-	skydome_ = new Skydome();
+	skydome_ = std::make_unique <Skydome>();
+	modelSkydome_ = std::unique_ptr<Model>(Model::CreateFromOBJ("skydome", true));
+	skydome_->Initialize(modelSkydome_.get(), ViewProjection_.get());
 
-	modelSkydome_ = Model::CreateFromOBJ("skydome", true);
+	ground_ = std::make_unique <Ground>();
+	modelGround_ = std::unique_ptr<Model>(Model::CreateFromOBJ("ground1", true));
+	ground_->Initialize(modelGround_.get(), ViewProjection_.get());
 
-	skydome_->Initialize(modelSkydome_, ViewProjection_.get());
+
+	debugCamera_ = std::make_unique <DebugCamera>(1920, 1080);
+
 }
 
 void GameScene::Update() {
 
 	player_->Update();
 	skydome_->Update();
-	
+	ground_->Update();
+
+	#ifdef _DEBUG
+	if (input_->TriggerKey(DIK_D)) {
+		isDebugCameraActive_ = true;
+	}
+
+	if (isDebugCameraActive_) {
+		debugCamera_->Update();
+		ViewProjection_->matView = debugCamera_->GetViewProjection().matView;
+		ViewProjection_->matProjection = debugCamera_->GetViewProjection().matProjection;
+		ViewProjection_->TransferMatrix();
+	} else {
+		ViewProjection_->UpdateMatrix();
+	}
+
+#endif
+
 }
 
 void GameScene::Draw() {
@@ -78,6 +98,8 @@ void GameScene::Draw() {
 	player_->Draw();
 
 	skydome_->Draw();
+
+	ground_->Draw();
 
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
