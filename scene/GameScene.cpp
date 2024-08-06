@@ -10,10 +10,7 @@ GameScene::GameScene() {
 }
 
 GameScene::~GameScene() { 
-	//delete sprite_;
-	//delete player_;
-	//delete skydome_;
-	//delete ground_;
+	
 }
 
 void GameScene::Initialize() {
@@ -41,6 +38,12 @@ void GameScene::Initialize() {
 
 	debugCamera_ = std::make_unique <DebugCamera>(1920, 1080);
 
+	followCamera_ = std::make_unique<FollowCamera>();
+	followCamera_->Initialize(ViewProjection_.get());
+	followCamera_->SetTarget(&player_.get()->GetWorldTransform());
+
+	player_->SetViewProjection(ViewProjection_.get());
+
 }
 
 void GameScene::Update() {
@@ -48,6 +51,8 @@ void GameScene::Update() {
 	player_->Update();
 	skydome_->Update();
 	ground_->Update();
+	followCamera_->Update();
+
 
 	#ifdef _DEBUG
 	if (input_->TriggerKey(DIK_D)) {

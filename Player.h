@@ -1,7 +1,7 @@
 #include "WorldTransform.h"
 #include "Model.h"
-
-
+#include "MathematicsUtil.h"
+#include <ViewProjection.h>
 
 
 #pragma once
@@ -32,7 +32,10 @@ class Player {
 	    /// 描画
 	    /// </summary>
 	    void Draw();
+		
+		const WorldTransform& GetWorldTransform() const;
 
+		void SetViewProjection( ViewProjection* viewProjection) { viewProjection_ = viewProjection; }
 
 		private:
 
@@ -40,6 +43,6 @@ class Player {
 
 			Model* model_ = nullptr;
 
-			ViewProjection* viewProjection_ = nullptr;
+		 ViewProjection* viewProjection_ = nullptr;
 
 };

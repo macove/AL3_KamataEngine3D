@@ -13,6 +13,7 @@
 #include "Skydome.h"
 #include "Ground.h"
 #include <DebugCamera.h>
+#include "FollowCamera.h"
 
 /// <summary>
 /// ゲームシーン
@@ -74,6 +75,8 @@ private: // メンバ変数
 
 	bool isDebugCameraActive_ = false;
 	std::unique_ptr<DebugCamera> debugCamera_;
+
+	std::unique_ptr<FollowCamera> followCamera_;
 
 	/// </summary>
 };

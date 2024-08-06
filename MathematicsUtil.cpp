@@ -91,6 +91,18 @@ Vector3 MyMathematics::Multiply(const Vector3& v, const Matrix4x4& matrix) {
 	return result;
 }
 
+Vector3 MyMathematics::RotateY(const Vector3& vec, float angle) { 
+	
+	 Vector3 result;
+
+	result.x = vec.x * cosf(angle) - vec.z * sinf(angle);
+	result.z = vec.x * sinf(angle) + vec.z * cosf(angle);
+	result.y = vec.y; 
+
+	return result;
+
+}
+
 Matrix4x4 MyMathematics::MakePerspectiveFovMatrix(float fovY, float aspectRatio, float nearClip, float farClip) 
 {
 
