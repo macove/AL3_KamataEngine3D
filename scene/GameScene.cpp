@@ -20,12 +20,22 @@ void GameScene::Initialize() {
 	audio_ = Audio::GetInstance();
 
 	player_ = std::make_unique<Player>();
-	playerModel_ = std::unique_ptr<Model>(Model::CreateFromOBJ("player1", true));
+	modelFighterBody_= std::unique_ptr<Model>(Model::CreateFromOBJ("body", true));
+	modelFighterHead_= std::unique_ptr<Model>(Model::CreateFromOBJ("head", true));
+	modelFighterL_arm_= std::unique_ptr<Model>(Model::CreateFromOBJ("armL", true));
+	modelFighterR_arm_= std::unique_ptr<Model>(Model::CreateFromOBJ("armR", true));
+
+	//playerModel_ = std::unique_ptr<Model>(Model::CreateFromOBJ("player1", true));
 	ViewProjection_ = std::make_unique<ViewProjection>();
 
 	ViewProjection_->Initialize();
+	std::vector<Model*> playerModels = {modelFighterBody_.get(), modelFighterHead_.get(), modelFighterL_arm_.get(), modelFighterR_arm_.get()};
+	player_->Initialize(playerModels);
 
-	player_->Initialize(playerModel_.get(), ViewProjection_.get());
+	enemy_ = std::make_unique<Enemy>();
+	modelEnemyBody_ = std::unique_ptr<Model>(Model::CreateFromOBJ("enemy1", true));
+	std::vector<Model*> enemyModels = {modelEnemyBody_.get()};
+	enemy_->Initialize(enemyModels);
 
 	skydome_ = std::make_unique <Skydome>();
 	modelSkydome_ = std::unique_ptr<Model>(Model::CreateFromOBJ("skydome", true));
@@ -49,6 +59,7 @@ void GameScene::Initialize() {
 void GameScene::Update() {
 
 	player_->Update();
+	enemy_->Update();
 	skydome_->Update();
 	ground_->Update();
 	followCamera_->Update();
@@ -100,7 +111,8 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
-	player_->Draw();
+	player_->Draw(*ViewProjection_);
+	enemy_->Draw(*ViewProjection_);
 
 	skydome_->Draw();
 

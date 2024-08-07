@@ -3,6 +3,8 @@
 #include "TextureManager.h"
 #include <Input.h>
 #include <ImGui.h>
+#define _USE_MATH_DEFINES
+#include <math.h>
 
 using namespace MyMathematics;
 Player::Player() {
@@ -14,16 +16,45 @@ Player::~Player() {
 
 }
 
-void Player::Initialize(Model* model, ViewProjection* viewProjection) { 
+void Player::Initialize(const std::vector<Model*>& models) { 
 	
 
-	assert(model); 
-
-	this->model_ = model;
-	viewProjection_ = viewProjection;
-
+	//assert(modelBody); 
+	//assert(modelHead);
+	//assert(modelL_arm);
+	//assert(modelR_arm);
+	//
+	//
+	//this->modelBody_ = modelBody;
+	//this->modelHead_ = modelHead;
+	//this->modelL_arm_ = modelL_arm;
+	//this->modelR_arm_ = modelR_arm;
+	//
+	//viewProjection_ = viewProjection;
+	//
 	worldTransform_.Initialize();
-	
+	worldTransformBody_.Initialize();
+	worldTransformBase_.Initialize();
+	worldTransformHead_.Initialize();
+	worldTransformL_arm_.Initialize();
+	worldTransformR_arm_.Initialize();
+	//
+	//
+	worldTransformBase_.parent_ = &worldTransformBody_;
+	worldTransformHead_.parent_ = &worldTransformBody_;  // Head inherits the body transform
+	worldTransformL_arm_.parent_ = &worldTransformBody_; // Left arm inherits the body transform
+	worldTransformR_arm_.parent_ = &worldTransformBody_; 
+	////worldTransformBase_.SetParent(&worldTransformBase_); // Left arm inherits from body transform
+	////worldTransformBase_.SetParent(&worldTransformBody_); // Body inherits from base transform
+	////worldTransformBody_.SetParent(&worldTransformBase_); // Body inherits from base transform
+	////worldTransformBody_.SetParent(&worldTransformHead_);  // Head inherits from body transform
+	////worldTransformBody_.SetParent(&worldTransformR_arm_); // Right arm inherits from body transform
+	//
+	//InitializeFloatingGimmick();
+
+
+	 BaseCharacter::Initialize(models);
+	InitializeFloatingGimmick();
 }
 
 void Player::Update() { 
@@ -43,48 +74,100 @@ void Player::Update() {
 	if (move.x != 0.0f || move.z != 0.0f) {
 		move = Multiply(Normalize(move), kCharacterSpeed);
 		if (viewProjection_) {
-			worldTransform_.rotation_.y += move.x * kPlayerRotationSpeed;
+			worldTransformBody_.rotation_.y += move.x * kPlayerRotationSpeed;
 			
-			if (worldTransform_.rotation_.y > kMaxPlayerRotation) {
-				worldTransform_.rotation_.y = kMaxPlayerRotation;
-			} else if (worldTransform_.rotation_.y < -kMaxPlayerRotation) {
-				worldTransform_.rotation_.y = -kMaxPlayerRotation;
+			if (worldTransformBody_.rotation_.y > kMaxPlayerRotation) {
+				worldTransformBody_.rotation_.y = kMaxPlayerRotation;
+			} else if (worldTransformBody_.rotation_.y < -kMaxPlayerRotation) {
+				worldTransformBody_.rotation_.y = -kMaxPlayerRotation;
 			}
 		}
 	} else {
 		
-		if (worldTransform_.rotation_.y > 0) {
-			worldTransform_.rotation_.y -= kPlayerReturnSpeed;
-			if (worldTransform_.rotation_.y < 0) {
-				worldTransform_.rotation_.y = 0;
+		if (worldTransformBody_.rotation_.y > 0) {
+			worldTransformBody_.rotation_.y -= kPlayerReturnSpeed;
+			if (worldTransformBody_.rotation_.y < 0) {
+				worldTransformBody_.rotation_.y = 0;
 			}
-		} else if (worldTransform_.rotation_.y < 0) {
-			worldTransform_.rotation_.y += kPlayerReturnSpeed;
-			if (worldTransform_.rotation_.y > 0) {
-				worldTransform_.rotation_.y = 0;
+		} else if (worldTransformBody_.rotation_.y < 0) {
+			worldTransformBody_.rotation_.y += kPlayerReturnSpeed;
+			if (worldTransformBody_.rotation_.y > 0) {
+				worldTransformBody_.rotation_.y = 0;
 			}
 		}
 	}
 
 
-	worldTransform_.translation_ = Add(worldTransform_.translation_, move);
+	worldTransformBody_.translation_ = Add(worldTransformBody_.translation_, move);
+
+	 UpdateFloatingGimmick();
+
+	 worldTransformBody_.UpdateMatrix();
+	 worldTransformHead_.UpdateMatrix();
+	 worldTransformL_arm_.UpdateMatrix();
+	 worldTransformR_arm_.UpdateMatrix();
+	worldTransformBase_.UpdateMatrix();
 
 	worldTransform_.UpdateMatrix();
 
 	ImGui::Begin("moveca");
+	ImGui::Text("Floating Parameter: %f", floatingParameter_);
 	ImGui::Text("move %f", move.x);
+	ImGui::Text("Base Position: %f, %f, %f", worldTransformBase_.translation_.x, worldTransformBase_.translation_.y, worldTransformBase_.translation_.z);
+	ImGui::Text("Body Position: %f, %f, %f", worldTransformBody_.translation_.x, worldTransformBody_.translation_.y, worldTransformBody_.translation_.z);
+	ImGui::Text("ArmL Position: %f, %f, %f", worldTransformL_arm_.translation_.x, worldTransformL_arm_.translation_.y, worldTransformL_arm_.translation_.z);
+	ImGui::Text("ArmR Position: %f, %f, %f", worldTransformR_arm_.translation_.x, worldTransformR_arm_.translation_.y, worldTransformR_arm_.translation_.z);
 	ImGui::End();
 	
 }
 
-void Player::Draw() {
+void Player::Draw(const ViewProjection& viewProjection) {
 
-	model_->Draw(worldTransform_, *viewProjection_);
+
+
+	models_[kModelIndexBody]->Draw(worldTransformBody_, viewProjection);
+	models_[kModelIndexHead]->Draw(worldTransformHead_, viewProjection);
+	models_[kModelIndexL_arm]->Draw(worldTransformL_arm_, viewProjection);
+	models_[kModelIndexR_arm]->Draw(worldTransformR_arm_, viewProjection);
 	
 
 }
 
 const WorldTransform& Player::GetWorldTransform() const { return worldTransform_; }
+
+void Player::InitializeFloatingGimmick() {
+
+
+	 floatingParameter_ = 0.0f;
+
+}
+
+void Player::UpdateFloatingGimmick() {
+
+  const uint16_t kCycleFrame = 60; // Animation cycle in frames
+  const float kStep = 2.0f * float(M_PI) / kCycleFrame; // Increment per frame
+
+  // Increment parameter by step for smooth floating
+  floatingParameter_ += kStep;
+
+  floatingParameter_ = std::fmod(floatingParameter_, 2.0f * float(M_PI));
+
+   const float kAmplitude = 0.2f;
+  const float kLowerArmAmplitude = 0.03f;
+
+  worldTransformBody_.translation_.y = std::sin(floatingParameter_) * kAmplitude;
+ 
+
+   worldTransformL_arm_.translation_.z = std::cos(floatingParameter_) * kAmplitude;
+  worldTransformR_arm_.translation_.z = std::cos(floatingParameter_ + float(M_PI)) * kAmplitude; 
+
+   worldTransformL_arm_.rotation_.x = std::sin(floatingParameter_) * kLowerArmAmplitude; // Lower arm movement for left arm
+  worldTransformR_arm_.rotation_.x = std::sin(floatingParameter_ + float(M_PI)) * kLowerArmAmplitude; // Lower arm movement for right arm
+   
+}
+
+void Player::SetParent(const WorldTransform* parent) { worldTransform_.parent_ = parent; }
+
 
 
 
