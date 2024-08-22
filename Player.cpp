@@ -6,6 +6,8 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 
+float Player::attackTime = 0.0f;
+
 using namespace MyMathematics;
 Player::Player() {
 }
@@ -38,19 +40,15 @@ void Player::Initialize(const std::vector<Model*>& models) {
 	worldTransformHead_.Initialize();
 	worldTransformL_arm_.Initialize();
 	worldTransformR_arm_.Initialize();
+	worldTransformHammer_.Initialize();
 	//
 	//
 	worldTransformBase_.parent_ = &worldTransformBody_;
 	worldTransformHead_.parent_ = &worldTransformBody_;  // Head inherits the body transform
 	worldTransformL_arm_.parent_ = &worldTransformBody_; // Left arm inherits the body transform
 	worldTransformR_arm_.parent_ = &worldTransformBody_; 
-	////worldTransformBase_.SetParent(&worldTransformBase_); // Left arm inherits from body transform
-	////worldTransformBase_.SetParent(&worldTransformBody_); // Body inherits from base transform
-	////worldTransformBody_.SetParent(&worldTransformBase_); // Body inherits from base transform
-	////worldTransformBody_.SetParent(&worldTransformHead_);  // Head inherits from body transform
-	////worldTransformBody_.SetParent(&worldTransformR_arm_); // Right arm inherits from body transform
-	//
-	//InitializeFloatingGimmick();
+	worldTransformHammer_.parent_ = &worldTransformBody_; 
+	
 
 
 	 BaseCharacter::Initialize(models);
@@ -59,50 +57,28 @@ void Player::Initialize(const std::vector<Model*>& models) {
 
 void Player::Update() { 
 	
-	Vector3 move = {0, 0, 0};
-	const float kCharacterSpeed = 0.4f;
-	const float kPlayerRotationSpeed = 0.05f; 
-	const float kMaxPlayerRotation = 0.3f;    
-	const float kPlayerReturnSpeed = 0.02f; 
-
-	XINPUT_STATE joyState;
-	if (Input::GetInstance()->GetJoystickState(0, joyState)) {
-		// Move the player based on joystick input
-		move.x += (float)joyState.Gamepad.sThumbLX / SHRT_MAX * kCharacterSpeed;
-		move.z += (float)joyState.Gamepad.sThumbLY / SHRT_MAX * kCharacterSpeed;
+		XINPUT_STATE joyState;
+	if (!Input::GetInstance()->GetJoystickState(0, joyState)) {
+		return;
 	}
-	if (move.x != 0.0f || move.z != 0.0f) {
-		move = Multiply(Normalize(move), kCharacterSpeed);
-		if (viewProjection_) {
-			worldTransformBody_.rotation_.y += move.x * kPlayerRotationSpeed;
-			
-			if (worldTransformBody_.rotation_.y > kMaxPlayerRotation) {
-				worldTransformBody_.rotation_.y = kMaxPlayerRotation;
-			} else if (worldTransformBody_.rotation_.y < -kMaxPlayerRotation) {
-				worldTransformBody_.rotation_.y = -kMaxPlayerRotation;
-			}
-		}
+	
+	  if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) {
+		BehaviorAttackUpdate(); 
 	} else {
 		
-		if (worldTransformBody_.rotation_.y > 0) {
-			worldTransformBody_.rotation_.y -= kPlayerReturnSpeed;
-			if (worldTransformBody_.rotation_.y < 0) {
-				worldTransformBody_.rotation_.y = 0;
-			}
-		} else if (worldTransformBody_.rotation_.y < 0) {
-			worldTransformBody_.rotation_.y += kPlayerReturnSpeed;
-			if (worldTransformBody_.rotation_.y > 0) {
-				worldTransformBody_.rotation_.y = 0;
-			}
+		if (isAttacking) {
+			ResetWeaponPosition();
+			isAttacking = false;   
 		}
+		attackExecuted = false;
+		BehaviorRootUpdate(); 
 	}
-
-
-	worldTransformBody_.translation_ = Add(worldTransformBody_.translation_, move);
+		
+	
 
 	 UpdateFloatingGimmick();
 
-	 worldTransformBody_.UpdateMatrix();
+	
 	 worldTransformHead_.UpdateMatrix();
 	 worldTransformL_arm_.UpdateMatrix();
 	 worldTransformR_arm_.UpdateMatrix();
@@ -112,11 +88,14 @@ void Player::Update() {
 
 	ImGui::Begin("moveca");
 	ImGui::Text("Floating Parameter: %f", floatingParameter_);
-	ImGui::Text("move %f", move.x);
+	//ImGui::Text("move %f", move.x);
 	ImGui::Text("Base Position: %f, %f, %f", worldTransformBase_.translation_.x, worldTransformBase_.translation_.y, worldTransformBase_.translation_.z);
 	ImGui::Text("Body Position: %f, %f, %f", worldTransformBody_.translation_.x, worldTransformBody_.translation_.y, worldTransformBody_.translation_.z);
 	ImGui::Text("ArmL Position: %f, %f, %f", worldTransformL_arm_.translation_.x, worldTransformL_arm_.translation_.y, worldTransformL_arm_.translation_.z);
 	ImGui::Text("ArmR Position: %f, %f, %f", worldTransformR_arm_.translation_.x, worldTransformR_arm_.translation_.y, worldTransformR_arm_.translation_.z);
+	ImGui::Text("isAtt %d", isAttacking);
+	ImGui::Text("attackTime %f", attackTime);
+	ImGui::Text("worldTransformHammer_.rotation_.x %f", worldTransformHammer_.rotation_.x);
 	ImGui::End();
 	
 }
@@ -129,7 +108,9 @@ void Player::Draw(const ViewProjection& viewProjection) {
 	models_[kModelIndexHead]->Draw(worldTransformHead_, viewProjection);
 	models_[kModelIndexL_arm]->Draw(worldTransformL_arm_, viewProjection);
 	models_[kModelIndexR_arm]->Draw(worldTransformR_arm_, viewProjection);
-	
+	if (isAttacking) {
+	models_[kModelIndexHammer]->Draw(worldTransformHammer_, viewProjection);
+	}
 
 }
 
@@ -167,6 +148,90 @@ void Player::UpdateFloatingGimmick() {
 }
 
 void Player::SetParent(const WorldTransform* parent) { worldTransform_.parent_ = parent; }
+
+void Player::BehaviorRootUpdate() {
+
+	  Vector3 move = {0, 0, 0};
+	const float kCharacterSpeed = 0.4f;
+	const float kPlayerRotationSpeed = 0.05f;
+	const float kMaxPlayerRotation = 0.3f;
+	const float kPlayerReturnSpeed = 0.02f;
+
+	XINPUT_STATE joyState;
+	if (Input::GetInstance()->GetJoystickState(0, joyState)) {
+		
+		move.x += (float)joyState.Gamepad.sThumbLX / SHRT_MAX * kCharacterSpeed;
+		move.z += (float)joyState.Gamepad.sThumbLY / SHRT_MAX * kCharacterSpeed;
+	}
+
+	if (move.x != 0.0f || move.z != 0.0f) {
+		move = Multiply(Normalize(move), kCharacterSpeed);
+		if (viewProjection_) {
+			worldTransformBody_.rotation_.y += move.x * kPlayerRotationSpeed;
+
+			if (worldTransformBody_.rotation_.y > kMaxPlayerRotation) {
+				worldTransformBody_.rotation_.y = kMaxPlayerRotation;
+			} else if (worldTransformBody_.rotation_.y < -kMaxPlayerRotation) {
+				worldTransformBody_.rotation_.y = -kMaxPlayerRotation;
+			}
+		}
+	} else {
+	
+		if (worldTransformBody_.rotation_.y > 0) {
+			worldTransformBody_.rotation_.y -= kPlayerReturnSpeed;
+			if (worldTransformBody_.rotation_.y < 0) {
+				worldTransformBody_.rotation_.y = 0;
+			}
+		} else if (worldTransformBody_.rotation_.y < 0) {
+			worldTransformBody_.rotation_.y += kPlayerReturnSpeed;
+			if (worldTransformBody_.rotation_.y > 0) {
+				worldTransformBody_.rotation_.y = 0;
+			}
+		}
+	}
+
+	worldTransformBody_.translation_ = Add(worldTransformBody_.translation_, move);
+	worldTransformBody_.UpdateMatrix();
+
+
+}
+
+void Player::BehaviorAttackUpdate() {
+
+	static const float kAttackDuration = 0.3f; 
+	
+
+
+		XINPUT_STATE joyState;
+	if (!Input::GetInstance()->GetJoystickState(0, joyState)) {
+		return;
+	}
+	
+		
+	   if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER && !attackExecuted) {
+		isAttacking = true;
+		   attackExecuted = true; 
+		attackTime += 0.1f;
+
+		
+		if (attackTime > 0.0f) {
+			worldTransformHammer_.rotation_.x += 0.1f;
+		}
+		
+		if (attackTime >= 180.0f) {
+			attackTime = 180.0f; 
+		}
+	} else {
+		
+		isAttacking = false;
+		attackTime = 0.0f;
+		ResetWeaponPosition();
+	}
+
+	worldTransformHammer_.UpdateMatrix();
+}
+
+void Player::ResetWeaponPosition() { worldTransformHammer_.Initialize(); }
 
 
 

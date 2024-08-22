@@ -24,12 +24,14 @@ void GameScene::Initialize() {
 	modelFighterHead_= std::unique_ptr<Model>(Model::CreateFromOBJ("head", true));
 	modelFighterL_arm_= std::unique_ptr<Model>(Model::CreateFromOBJ("armL", true));
 	modelFighterR_arm_= std::unique_ptr<Model>(Model::CreateFromOBJ("armR", true));
+	modelHammer_ = std::unique_ptr<Model>(Model::CreateFromOBJ("hammer", true));
+
 
 	//playerModel_ = std::unique_ptr<Model>(Model::CreateFromOBJ("player1", true));
 	ViewProjection_ = std::make_unique<ViewProjection>();
 
 	ViewProjection_->Initialize();
-	std::vector<Model*> playerModels = {modelFighterBody_.get(), modelFighterHead_.get(), modelFighterL_arm_.get(), modelFighterR_arm_.get()};
+	std::vector<Model*> playerModels = {modelFighterBody_.get(), modelFighterHead_.get(), modelFighterL_arm_.get(), modelFighterR_arm_.get(), modelHammer_.get()};
 	player_->Initialize(playerModels);
 
 	enemy_ = std::make_unique<Enemy>();

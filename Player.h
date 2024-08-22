@@ -43,7 +43,10 @@ class Player : public BaseCharacter {
 		void UpdateFloatingGimmick();
 
 		void SetParent(const WorldTransform* parent);
-
+		
+		void BehaviorRootUpdate();
+	    void BehaviorAttackUpdate();
+	    void ResetWeaponPosition();
 
 		private:
 
@@ -53,14 +56,19 @@ class Player : public BaseCharacter {
 	        WorldTransform worldTransformHead_;
 	        WorldTransform worldTransformL_arm_;
 	        WorldTransform worldTransformR_arm_;
+	        WorldTransform worldTransformHammer_;
 
 			static constexpr int kModelIndexBody = 0;
 	        static constexpr int kModelIndexHead = 1;
 	        static constexpr int kModelIndexL_arm = 2;
 	        static constexpr int kModelIndexR_arm = 3;
+	        static constexpr int kModelIndexHammer = 4;
 
 		 ViewProjection* viewProjection_ = nullptr;
 
 		 float floatingParameter_ = 0.0f;
 
+		 bool isAttacking = false;
+	     static float attackTime;
+	     bool attackExecuted = false;
 };
