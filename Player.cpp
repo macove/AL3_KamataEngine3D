@@ -59,23 +59,23 @@ void Player::Initialize(Model* model, uint32_t textureHandle, ViewProjection* vi
 void Player::Update() {
 
 	 // Handle input
+	XINPUT_STATE joyState;
 	Vector3 move = {0, 0, 0};
 	const float kCharacterSpeed = 0.4f;
-
-	XINPUT_STATE joyState;
+	
 	if (Input::GetInstance()->GetJoystickState(0, joyState)) {
 		// Move the player based on joystick input
 		move.x += (float)joyState.Gamepad.sThumbLX / SHRT_MAX * kCharacterSpeed;
 		move.y += (float)joyState.Gamepad.sThumbLY / SHRT_MAX * kCharacterSpeed;
 	}
-
+	
 	// Update player position and apply movement limits
 	worldTransform_.translation_ = Add(worldTransform_.translation_, move);
-
+	
 	const float kMoveLimitX = 40.0f; // Limit for x-axis movement
 	const float kMoveLimitY = 20.0f; // Limit for y-axis movement
 	const float kMoveLimitZ = 80.0f; // Limit for z-axis movement
-
+	
 	// Apply movement limits
 	worldTransform_.translation_.x = std::max(worldTransform_.translation_.x, -kMoveLimitX);
 	worldTransform_.translation_.x = std::min(worldTransform_.translation_.x, +kMoveLimitX);
