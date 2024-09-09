@@ -2,20 +2,17 @@
 #include "Player.h"
 #include <cassert>
 #include "GameScene.h"
+
+
 using namespace MyMathematics;
 
-Enemy::~Enemy() {
-
-	
-}
+Enemy::~Enemy() { delete bulletModel_; }
 
 void Enemy::Initialize(Model* model, const Vector3& position, ViewProjection* viewProjection) {
 
 	assert(model);
 
 	model_ = model;
-
-	textureHandle_ = TextureManager::Load("./Resources/1642226.png");
 
 	viewProjection_ = viewProjection;
 
@@ -26,6 +23,8 @@ void Enemy::Initialize(Model* model, const Vector3& position, ViewProjection* vi
 	input_ = Input::GetInstance();
 
 	radius_ = 1.0f;
+
+	bulletModel_ = Model::CreateFromOBJ("enemyBullet", true);
 }
 
 void Enemy::Update() {
@@ -55,8 +54,12 @@ void Enemy::Update() {
 	//	return false;
 	//});
 
-	if (worldTransform_.translation_.z < -40.0f) {
-		worldTransform_.translation_.z = 40.0f;
+	//ImGui::Begin("Enemy");
+	//ImGui::Text("enemyCount %d", enemyCount_);
+	//ImGui::End();
+
+	if (worldTransform_.translation_.z < -20.0f) {
+		worldTransform_.translation_.z = 80.0f;
 	}
 }
 
@@ -64,7 +67,7 @@ void Enemy::Draw() {
 
 	if (!isDead_) {
 	
-	model_->Draw(worldTransform_, *viewProjection_, textureHandle_);
+	model_->Draw(worldTransform_, *viewProjection_);
 	}
 
 	//for (EnemyBullet* bullet : bullets_) {
@@ -80,10 +83,13 @@ void Enemy::Fire() {
 	Vector3 playerPos = player_->GetWorldPosition();
 	Vector3 direction = Subtract(playerPos, enemyPos);
 	direction = Normalize(direction);
+
+	// viewProjection_->UpdateMatrix();
+
 	Vector3 velocity = Multiply(direction, kBulletSpeed);
 
 	EnemyBullet* newBullet = new EnemyBullet();
-	newBullet->Initialize(model_, worldTransform_.translation_, viewProjection_, velocity);
+	newBullet->Initialize(bulletModel_, worldTransform_.translation_, viewProjection_, velocity);
 
 	gameScene_->AddEnemyBullet(newBullet);
 }
@@ -92,6 +98,14 @@ void Enemy::InitializeApproachPhase() { fireTimer_ = kFireInterval; }
 
 Vector3 Enemy::GetWorldPosition() { return Transform(Vector3{0, 0, 0}, worldTransform_.matWorld_); }
 
-void Enemy::OnCollision() { isDead_ = true; }
+void Enemy::OnCollision() { 
+	isDead_ = true;
+	if (enemyCount_ > 0) {
+		enemyCount_--;
+	}
+	if (gameScene_ && enemyCount_ == 0) {
+		gameScene_->SetAllEnemiesDefeated(true);
+	}
+}
 
 float Enemy::GetRadius() const { return radius_; }

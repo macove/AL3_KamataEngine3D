@@ -7,6 +7,13 @@
 #include "PrimitiveDrawer.h"
 #include "TextureManager.h"
 #include "WinApp.h"
+#include "SceneState.h" 
+#include "TitleScene.h"
+#include "OverScene.h"
+#include "EndedScene.h"
+#include <Xinput.h>
+#include <Player.h>
+SceneState currentScene = SceneState::Title;
 
 // Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
@@ -18,7 +25,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	AxisIndicator* axisIndicator = nullptr;
 	PrimitiveDrawer* primitiveDrawer = nullptr;
 	GameScene* gameScene = nullptr;
-
+	TitleScene* titleScene = nullptr;
+	OverScene* overScene = nullptr;
+	EndedScene* endedScene = nullptr;
 	// ゲームウィンドウの作成
 	win = WinApp::GetInstance();
 	win->CreateGameWindow(L"AL3_LE2B_21_パク_イジュン");
@@ -26,6 +35,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	// DirectX初期化処理
 	dxCommon = DirectXCommon::GetInstance();
 	dxCommon->Initialize(win);
+
+	
 
 #pragma region 汎用機能初期化
 	// ImGuiの初期化
@@ -59,8 +70,21 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma endregion
 
 	// ゲームシーンの初期化
+	titleScene = new TitleScene();
+	titleScene->Initialize();
+
 	gameScene = new GameScene();
 	gameScene->Initialize();
+
+	overScene = new OverScene();
+	overScene->Initialize();
+
+	endedScene = new EndedScene();
+	endedScene->Initialize();
+
+	BYTE preButtons = 0;
+
+	
 
 	// メインループ
 	while (true) {
@@ -74,7 +98,73 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		// 入力関連の毎フレーム処理
 		input->Update();
 		// ゲームシーンの毎フレーム処理
-		gameScene->Update();
+
+		XINPUT_STATE state;
+
+		switch (currentScene) {
+		case SceneState::Title:
+			titleScene->Update();
+			if (XInputGetState(0, &state) == ERROR_SUCCESS) {
+				WORD currentButtons = state.Gamepad.wButtons;
+				if ((preButtons & XINPUT_GAMEPAD_X) == 0 && (currentButtons & XINPUT_GAMEPAD_X) != 0) {
+					currentScene = SceneState::Stage;
+				}
+				preButtons = static_cast<BYTE>(currentButtons); 
+			}
+			//if (input->TriggerKey(DIK_SPACE) && input->PushKey(DIK_SPACE)) {
+			//	currentScene = SceneState::Stage;
+			//}
+			break;
+		case SceneState::Stage:
+			gameScene->Update();
+			if (gameScene->GetPlayerHP() <= 0) {
+				currentScene = SceneState::Over;
+			} else if (gameScene->IsAllEnemiesDefeated()) {
+				currentScene = SceneState::Ended;
+			} else if (gameScene->IsTimeOver()) {
+				currentScene = SceneState::Over;
+			}
+			break;
+		case SceneState::Over:
+			overScene->Update();
+		
+			if (XInputGetState(0, &state) == ERROR_SUCCESS) {
+				WORD currentButtons = state.Gamepad.wButtons;
+				if ((preButtons & XINPUT_GAMEPAD_Y) == 0 && (currentButtons & XINPUT_GAMEPAD_Y) != 0) {
+					delete gameScene;
+				
+					gameScene = new GameScene();
+					gameScene->Initialize();
+					currentScene = SceneState::Stage;
+				}
+				preButtons = static_cast<BYTE>(currentButtons);
+			}
+			if (input->TriggerKey(DIK_SPACE) && input->PushKey(DIK_SPACE)) {
+				currentScene = SceneState::Stage;
+			}
+			break;
+		case SceneState::Ended:
+			endedScene->Update();
+			if (XInputGetState(0, &state) == ERROR_SUCCESS) {
+				WORD currentButtons = state.Gamepad.wButtons;
+				if ((preButtons & XINPUT_GAMEPAD_B) == 0 && (currentButtons & XINPUT_GAMEPAD_B) != 0) {
+					delete gameScene;
+
+					gameScene = new GameScene();
+					gameScene->Initialize();
+					currentScene = SceneState::Title;
+				}
+				preButtons = static_cast<BYTE>(currentButtons);
+			}
+			if (input->TriggerKey(DIK_SPACE) && input->PushKey(DIK_SPACE)) {
+				currentScene = SceneState::Title;
+			}
+			break;
+		default:
+			break;
+		}
+
+		
 		// 軸表示の更新
 		axisIndicator->Update();
 		// ImGui受付終了
@@ -83,7 +173,25 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		// 描画開始
 		dxCommon->PreDraw();
 		// ゲームシーンの描画
-		gameScene->Draw();
+
+		switch (currentScene) {
+		case SceneState::Title:
+			titleScene->Draw();
+			break;
+		case SceneState::Stage:
+			gameScene->Draw();
+			break;
+		case SceneState::Over:
+			overScene->Draw();
+			break;
+		case SceneState::Ended:
+			endedScene->Draw();
+			break;
+		default:
+			break;
+		}
+
+		
 		// 軸表示の描画
 		axisIndicator->Draw();
 		// プリミティブ描画のリセット
@@ -95,7 +203,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	}
 
 	// 各種解放
+	delete endedScene;
+	delete overScene;
 	delete gameScene;
+	delete titleScene;
 	// 3Dモデル解放
 	Model::StaticFinalize();
 	audio->Finalize();

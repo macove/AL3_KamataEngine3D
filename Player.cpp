@@ -16,15 +16,16 @@ Player::~Player() {
 	}
 
 	delete sprite2DReticle_;
+	delete bulletModel_;
 }
 
-void Player::Initialize(Model* model, uint32_t textureHandle, ViewProjection* viewProjection, const Vector3& position) {
+void Player::Initialize(Model* model, ViewProjection* viewProjection, const Vector3& position) {
 
 	assert(model);
 
 	model_ = model;
 
-	textureHandle_ = textureHandle;
+	bulletModel_ = Model::CreateFromOBJ("playerBullet", true);
 
 	viewProjection_ = viewProjection;
 
@@ -72,8 +73,8 @@ void Player::Update() {
 	// Update player position and apply movement limits
 	worldTransform_.translation_ = Add(worldTransform_.translation_, move);
 	
-	const float kMoveLimitX = 40.0f; // Limit for x-axis movement
-	const float kMoveLimitY = 20.0f; // Limit for y-axis movement
+	const float kMoveLimitX = 28.0f; // Limit for x-axis movement
+	const float kMoveLimitY = 13.0f; // Limit for y-axis movement
 	const float kMoveLimitZ = 80.0f; // Limit for z-axis movement
 	
 	// Apply movement limits
@@ -91,8 +92,8 @@ void Player::Update() {
 	Rotate();
 
 	// Update the position of the 3D reticle relative to the player
-	const float kDistancePlayerTo3DReticle = 50.0f; // Distance from player to reticle
-	Vector3 offset = {0, 0, 1.0f};                  // Offset in front of the player
+	const float kDistancePlayerTo3DReticle = 60.0f; // Distance from player to reticle
+	Vector3 offset = {0, 0.0, 1.0f};                  // Offset in front of the player
 	offset = Multiply(offset, worldTransform_.matWorld_);
 	offset = Multiply(Normalize(offset), kDistancePlayerTo3DReticle);
 	worldTransform3DReticle_.translation_ = Add(worldTransform_.translation_, offset);
@@ -104,6 +105,7 @@ void Player::Update() {
 	Matrix4x4 matViewport = MakeViewportMatrix(0, 0, WinApp::kWindowWidth, WinApp::kWindowHeight, 0, 1);
 	Matrix4x4 matViewProjectionViewport = Multiply(Multiply(viewProjection_->matView, viewProjection_->matProjection), matViewport);
 	Matrix4x4 matInverseVPV = Inverse(matViewProjectionViewport);
+
 	Vector3 posNear = Vector3(float(spritePosition.x), float(spritePosition.y), 0.0f);
 	Vector3 posFar = Vector3(float(spritePosition.x), float(spritePosition.y), 1.0f);
 	posNear = Transform(posNear, matInverseVPV);
@@ -116,6 +118,7 @@ void Player::Update() {
 	worldTransform3DReticle_.translation_.z = 100.0f;
 
 	worldTransform3DReticle_.UpdateMatrix();
+
 
 	if (Input::GetInstance()->GetJoystickState(0, joyState)) {
 		spritePosition.x += ((float)joyState.Gamepad.sThumbRX / SHRT_MAX) * 10.0f;
@@ -139,7 +142,7 @@ void Player::Update() {
 	});
 
 	// Update debug UI with ImGui
-	ImGui::Begin("Player");
+	/*ImGui::Begin("Player");
 	ImGui::PushItemWidth(100);
 	ImGui::SliderFloat("X", &worldTransform_.translation_.x, -40.0f, 40.0f);
 	ImGui::SameLine();
@@ -147,7 +150,8 @@ void Player::Update() {
 	ImGui::SameLine();
 	ImGui::SliderFloat("Z", &worldTransform_.translation_.z, -80.0f, 80.0f);
 	ImGui::Text("3DReticle:(%+.2f,%+.2f,%+.2f)", worldTransform3DReticle_.translation_.x, worldTransform3DReticle_.translation_.y, worldTransform3DReticle_.translation_.z);
-	ImGui::End();
+	ImGui::Text("HP %d", hp_);
+	ImGui::End();*/
 
 	// Update the transformation matrix
 	worldTransformBlock->UpdateMatrix();
@@ -155,7 +159,7 @@ void Player::Update() {
 
 void Player::Draw() {
 
-	model_->Draw(worldTransform_, *viewProjection_, textureHandle_);
+	model_->Draw(worldTransform_, *viewProjection_);
 	//model_->Draw(worldTransform3DReticle_, *viewProjection_, textureHandle_);
 	for (PlayerBullet* bullet : bullets_) {
 		bullet->Draw();
@@ -175,21 +179,34 @@ void Player::Rotate() {
 
 void Player::Attack() {
 
+	if (cooldownTimer_ > 0) {
+		cooldownTimer_--;
+		return;
+	}
+
 	XINPUT_STATE joyState;
 	if (!Input::GetInstance()->GetJoystickState(0, joyState)) {
 		return;
 	}
-
+	if (bulletCount_ >= maxBulletCount_) {
+		cooldownTimer_ = cooldownDuration_;
+		bulletCount_ = 0;
+		return;
+	}
 	if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) {
+		//viewProjection_->UpdateMatrix();
 		Vector3 bulletDirection = Subtract(worldTransform3DReticle_.translation_, worldTransform_.translation_);
 		bulletDirection = Normalize(bulletDirection);
+
 		const float kBulletSpeed = 1.0f;
 		Vector3 velocity = Multiply(bulletDirection, kBulletSpeed);
 
 		PlayerBullet* newBullet = new PlayerBullet();
 		newBullet->SetParent(worldTransform_.parent_);
-		newBullet->Initialize(model_, worldTransform_.translation_, viewProjection_, velocity);
+		newBullet->Initialize(bulletModel_, worldTransform_.translation_, viewProjection_, velocity);
 		bullets_.push_back(newBullet);
+
+		bulletCount_++;
 	}
 }
 
@@ -198,15 +215,20 @@ Vector3 Player::GetWorldPosition() {
 	Vector3 worldPos;
 
 	worldPos.x = worldTransform_.translation_.x;
-	worldPos.y = worldTransform_.translation_.y;
-	worldPos.z = worldTransform_.translation_.z - 50.0f;
+	worldPos.y = worldTransform_.translation_.y +15.0f;
+	worldPos.z = worldTransform_.translation_.z -90.0f;
 
 	return worldPos;
 
 	// return Transform(Vector3{0, 0, 0}, worldTransform_.matWorld_);
 }
 
-void Player::OnCollision() {}
+void Player::OnCollision() {
+
+	 if (hp_ > 0) {
+		hp_--; 
+	}
+}
 
 float Player::GetRadius() const { return radius_; }
 

@@ -3,12 +3,11 @@
 void Skydome::Initialize(Model* model, ViewProjection* viewProjection) {
 
 
-
     model_ = model;
 
 	viewProjection_ = viewProjection;
 	
-	worldTransform_.scale_ = Vector3{3.0f, 3.0f, 3.0f};
+	worldTransform_.scale_ = Vector3{5.0f, 5.0f, 5.0f};
 
 	worldTransform_.Initialize();
 

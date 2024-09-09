@@ -9,8 +9,6 @@ void EnemyBullet::Initialize(Model* model, const Vector3& position, ViewProjecti
 
 	model_ = model;
 
-	textureHandle_ = TextureManager::Load("./Resources/white1x1.png");
-
 	viewProjection_ = viewProjection;
 
 	worldTransform_.Initialize();
@@ -23,6 +21,8 @@ void EnemyBullet::Initialize(Model* model, const Vector3& position, ViewProjecti
 }
 
 void EnemyBullet::Update() {
+
+	
 
 	worldTransform_.translation_ = Add(worldTransform_.translation_, velocity_);
 
@@ -37,7 +37,7 @@ void EnemyBullet::Update() {
 
 void EnemyBullet::Draw() {
 
-	model_->Draw(worldTransform_, *viewProjection_, textureHandle_);
+	model_->Draw(worldTransform_, *viewProjection_);
 
 
 }

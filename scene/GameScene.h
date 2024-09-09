@@ -14,10 +14,17 @@
 #include "Skydome.h"
 #include "RailCamera.h"
 #include <sstream>
-/// <summary>
+#include "Ground.h"
+#include <Input.h>
+
+
+
+
+    /// <summary>
 /// ゲームシーン
 /// </summary>
 class GameScene {
+	
 
 public: // メンバ関数
 	/// <summary>
@@ -55,7 +62,15 @@ public: // メンバ関数
 
 	void SpawnEnemy(const Vector3& position);
 
-private: // メンバ変数
+	int GetPlayerHP() const { return player_->GetHP(); }
+
+	void RemoveEnemy(Enemy* enemy);
+
+	 void SetAllEnemiesDefeated(bool state) { allEnemiesDefeated_ = state; }
+	bool IsAllEnemiesDefeated() const { return allEnemiesDefeated_; }
+	 bool IsTimeOver() const { return gameTimer_ >= maxTime_; }
+
+ private: // メンバ変数
 	DirectXCommon* dxCommon_ = nullptr;
 	Input* input_ = nullptr;
 	Audio* audio_ = nullptr;
@@ -67,15 +82,23 @@ private: // メンバ変数
 
 	bool isDebugCameraActive_ = false;
 	
-	DebugCamera* debugCamera_ = nullptr;
+	//DebugCamera* debugCamera_ = nullptr;
 
 	
 	Model* enemyModel_ = nullptr;
 
 
-	Skydome* skydome_ = nullptr;
+	Skydome* skyDomeSpring_ = nullptr;
+	Model* modelSkyDomeSpring_ = nullptr;
 
-	Model* modelSkydome_ = nullptr;
+	Skydome* skyDomeSummer_ = nullptr;
+	Model* modelSkyDomeSummer_ = nullptr;
+
+	Skydome* skyDomeAutumn_ = nullptr;
+	Model* modelSkyDomeAutumn_ = nullptr;
+
+	Skydome* skyDomeWinter_ = nullptr;
+	Model* modelSkyDomeWinter_ = nullptr;
 
 	RailCamera* railCamera_ = nullptr;
 
@@ -87,5 +110,65 @@ private: // メンバ変数
 
 	bool isWaiting_ = false; 
     int32_t waitTimer_ = 0;
+
+	
+
+	Ground* groundSpring_;
+	Model* modelGroundSpring_;
+
+	Ground* groundSummer_;
+	Model* modelGroundSummer_;
+
+	Ground* groundAutumn_;
+	Model* modelGroundAutumn_;
+
+	Ground* groundWinter_;
+	Model* modelGroundWinter_;
+
+
+
+	
+	 
+	 bool allEnemiesDefeated_ = false;
+
+	 uint32_t playerHPSprite_ = 0; 
+	 Sprite* playerHP_ = nullptr;
+
+	 uint32_t playerXSprite_ = 0;
+	 Sprite* playerX_ = nullptr;
+	////////////////////////////////
+
+	 uint32_t Sprite0_ = 0;
+	 Sprite* SpriteX0_ = nullptr;
+
+	 uint32_t Sprite1_ = 0;
+	 Sprite* SpriteX1_ = nullptr;
+
+	 uint32_t Sprite2_ = 0;
+	 Sprite* SpriteX2_ = nullptr;
+
+	 uint32_t Sprite3_ = 0;
+	 Sprite* SpriteX3_ = nullptr;
+
+	 uint32_t Sprite4_ = 0;
+	 Sprite* SpriteX4_ = nullptr;
+
+	 uint32_t Sprite5_ = 0;
+	 Sprite* SpriteX5_ = nullptr;
+
+	 uint32_t Sprite6_ = 0;
+	 Sprite* SpriteX6_ = nullptr;
+
+	 uint32_t Sprite7_ = 0;
+	 Sprite* SpriteX7_ = nullptr;
+
+	 uint32_t Sprite8_ = 0;
+	 Sprite* SpriteX8_ = nullptr;
+
+	 uint32_t Sprite9_ = 0;
+	 Sprite* SpriteX9_ = nullptr;
+
+	  float gameTimer_ = 0.0f;
+	  float maxTime_ = 7200.0f;
 
 };

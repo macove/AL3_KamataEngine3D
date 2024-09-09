@@ -43,6 +43,8 @@ public:
 
 	void SetGameScene(GameScene* gameScene) { gameScene_ = gameScene; }
 
+	 int GetCount() const { return enemyCount_; }
+
 private:
 	WorldTransform worldTransform_;
 
@@ -56,7 +58,7 @@ private:
 
 	Input* input_ = nullptr;
 
-	static const int32_t kFireInterval = 60;
+	static const int32_t kFireInterval = 70;
 
 	int32_t fireTimer_ = kFireInterval;
 
@@ -68,5 +70,9 @@ private:
 
 	GameScene* gameScene_ = nullptr;
 
-	 bool isDead_ = false;
+	bool isDead_ = false;
+
+	Model* bulletModel_ = nullptr;
+
+	int enemyCount_ = 20;
 };

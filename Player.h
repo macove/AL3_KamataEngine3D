@@ -2,7 +2,6 @@
 #include "Model.h"
 #include "Input.h"
 #include "MathematicsUtil.h"
-#include "imgui.h"
 #include "PlayerBullet.h"
 #include <list>
 #include <Sprite.h>
@@ -18,7 +17,7 @@ class Player {
 
 		 ~Player();
 
-		 void Initialize(Model* model, uint32_t textureHandle, ViewProjection* viewProjection, const Vector3& position);
+		 void Initialize(Model* model, ViewProjection* viewProjection, const Vector3& position);
 
 		 void Update();
 
@@ -31,6 +30,10 @@ class Player {
 	     Vector3 GetWorldPosition();
 
 		 void OnCollision();
+
+		 int GetHP() const { return hp_; }
+
+	     
 
 		 const std::list<PlayerBullet*>& GetBullets() const { return bullets_; }
 
@@ -65,6 +68,14 @@ class Player {
 
 			Sprite* sprite2DReticle_ = nullptr;
 
+			int hp_ = 10; 
 
+			Model* bulletModel_ = nullptr;
+
+
+			int bulletCount_ = 0;            
+	        int cooldownTimer_ = 0;           
+	        const int maxBulletCount_ = 10;   
+	        const int cooldownDuration_ = 60; 
 
 };

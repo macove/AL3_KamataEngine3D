@@ -30,8 +30,6 @@ class EnemyBullet {
 
 	    Model* model_ = nullptr;
 
-	    uint32_t textureHandle_ = 0u;
-
 	    ViewProjection* viewProjection_ = nullptr;
 
 	    Vector3 velocity_;
