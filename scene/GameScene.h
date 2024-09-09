@@ -99,6 +99,9 @@ private: // メンバ変数
 	MapChipField* mapChipField_ = nullptr;
 
 
+	Model* modelNewType_ = nullptr;
+	uint32_t newBlockHandle_ = 0;
+	uint32_t newBlockHandle1_ = 0;
 	CameraController* cameraController_ = nullptr;
 
 	/// </summary>

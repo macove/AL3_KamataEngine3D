@@ -22,10 +22,14 @@ GameScene::~GameScene() {
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
 		delete worldTransformBlock;
+			for (WorldTransform* worldTransformBlockA : worldTransformBlockLine) {
+			delete worldTransformBlockA;
+			}
 	    }
 	}
 	worldTransformBlocks_.clear();
 
+	delete modelNewType_;
 	delete mapChipField_;
 	delete debugCamera_;
 	delete cameraController_;
@@ -55,6 +59,9 @@ void GameScene::Initialize() {
 	mapChipField_ = new MapChipField;
 	mapChipField_->ResetMapChipData();
 	mapChipField_->LoadMapChipCsv("Resources/block.csv");
+
+	newBlockHandle_ = TextureManager::Load("uvChecker.png");
+	newBlockHandle1_ = TextureManager::Load("cube.png");
 
 	GenerateBlock();
 
@@ -162,10 +169,19 @@ void GameScene::Draw() {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
 			if (!worldTransformBlock)
 				continue;
-			modelBlock_->Draw(*worldTransformBlock, *ViewProjection_);
+				modelBlock_->Draw(*worldTransformBlock, *ViewProjection_, newBlockHandle_);
+			for (WorldTransform* worldTransformBlockA : worldTransformBlockLine){
+				    if (!worldTransformBlockA)
+					    continue;
+				    modelNewType_->Draw(*worldTransformBlockA, *ViewProjection_, newBlockHandle1_);
+		}
+			
+			
 		}
 	}
 	
+	
+
 	skydome_->Draw();
 
 	// 3Dオブジェクト描画後処理
@@ -194,6 +210,9 @@ void GameScene::GenerateBlock() {
 
 	modelBlock_ = Model::Create();
 
+	modelNewType_ = Model::Create();
+	
+
 	// 要素数
 
 	uint32_t numBlockVertical = mapChipField_->GetNumBlockVertical();
@@ -205,7 +224,8 @@ void GameScene::GenerateBlock() {
 		worldTransformBlocks_[i].resize(numBlockHorizontal);
 		// cubeの生成
 		for (uint32_t j = 0; j < numBlockHorizontal; ++j) {
-			if (mapChipField_->GetMapChipTypeByIndex(j,i) == MapChipType::kBlock) {
+			MapChipType chipType = mapChipField_->GetMapChipTypeByIndex(j, i);
+			if (chipType == MapChipType::kBlock || chipType == MapChipType::kNewBlock) {
 				WorldTransform* worldTransform = new WorldTransform();
 				worldTransform->Initialize();
 				worldTransformBlocks_[i][j] = worldTransform;
