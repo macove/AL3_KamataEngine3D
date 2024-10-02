@@ -21,7 +21,7 @@ void GameScene::Initialize() {
 
 	player_ = std::make_unique<Player>();
 	modelFighterBody_= std::unique_ptr<Model>(Model::CreateFromOBJ("body", true));
-	modelFighterHead_= std::unique_ptr<Model>(Model::CreateFromOBJ("head", true));
+	modelFighterHead_= std::unique_ptr<Model>(Model::CreateFromOBJ("weapon", true));
 	modelFighterL_arm_= std::unique_ptr<Model>(Model::CreateFromOBJ("armL", true));
 	modelFighterR_arm_= std::unique_ptr<Model>(Model::CreateFromOBJ("armR", true));
 	modelHammer_ = std::unique_ptr<Model>(Model::CreateFromOBJ("hammer", true));
@@ -55,6 +55,24 @@ void GameScene::Initialize() {
 	followCamera_->SetTarget(&player_.get()->GetWorldTransform());
 
 	player_->SetViewProjection(ViewProjection_.get());
+
+	textureHandleHP_ = TextureManager::Load("./Resources/playerUI.png");
+	spriteHP_ = Sprite::Create(textureHandleHP_, {0, 0});
+
+	textureHandleHPA_ = TextureManager::Load("./Resources/playerHP.png");
+	spriteHPA_ = Sprite::Create(textureHandleHPA_, {0, 0});
+	//
+	//textureHandleMP_ = TextureManager::Load("./Resources/playerMP.png");
+	//spriteMP_ = Sprite::Create(textureHandleMP_, {0, 0});
+	//
+	textureHandleMPA_ = TextureManager::Load("./Resources/playerMP.png");
+	spriteMPA_ = Sprite::Create(textureHandleMPA_, {0, 0});
+
+	buffP_=TextureManager::Load("./Resources/powerUP.png");
+	spriteBuffP_ = Sprite::Create(buffP_, {0, 0});
+
+	skill_ = TextureManager::Load("./Resources/skill.png");
+	spriteSkill_ = Sprite::Create(skill_, {0, 0});
 
 }
 
@@ -98,6 +116,11 @@ void GameScene::Draw() {
 	/// ここに背景スプライトの描画処理を追加できる
 	/// </summary>
 
+
+
+	
+	
+
 	//sprite_->Draw();
 
 	// スプライト描画後処理
@@ -131,6 +154,17 @@ void GameScene::Draw() {
 #pragma region 前景スプライト描画
 	// 前景スプライト描画前処理
 	Sprite::PreDraw(commandList);
+
+
+	spriteHP_->Draw();
+	spriteHPA_->Draw();
+
+	//spriteMP_->Draw();
+	spriteMPA_->Draw();
+
+	spriteBuffP_->Draw();
+
+	//spriteSkill_->Draw();
 
 	/// <summary>
 	/// ここに前景スプライトの描画処理を追加できる

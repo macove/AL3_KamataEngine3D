@@ -56,7 +56,22 @@ private: // メンバ変数
 	/// ゲームシーン用
 
 	//textureHandle
-	//uint32_t textureHandle_ = 0;
+	uint32_t textureHandleHP_ = 0;
+	uint32_t textureHandleHPA_ = 0;
+	Sprite* spriteHP_ = nullptr;
+	Sprite* spriteHPA_ = nullptr;
+	uint32_t textureHandleMP_ = 0;
+	uint32_t textureHandleMPA_ = 0;
+	Sprite* spriteMP_ = nullptr;
+	Sprite* spriteMPA_ = nullptr;
+
+	uint32_t buffP_ = 0;
+	Sprite* spriteBuffP_ = nullptr;
+
+	uint32_t skill_ = 0;
+	Sprite* spriteSkill_ = nullptr;
+
+
 	//Sprite
 	//Sprite* sprite_ = nullptr;
 	//ViewProjection
